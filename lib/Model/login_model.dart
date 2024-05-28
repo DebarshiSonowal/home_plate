@@ -10,6 +10,7 @@ class LoginModel with _$LoginModel {
   const factory LoginModel({
     ProfileModel? data,
     String? message,
+    String? access_token,
     @Default(false) bool success,
   }) = _LoginModel;
 

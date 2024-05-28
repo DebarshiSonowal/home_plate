@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-
 class Storage {
   // shared_preferences
   Storage._();
@@ -13,9 +12,10 @@ class Storage {
     sharedpreferences = await SharedPreferences.getInstance();
   }
 
-  Future<void> setUser(String token) async {
+  Future<void> setUser(String token,String id) async {
     debugPrint('set token $token');
     await sharedpreferences.setString("token", token);
+    await sharedpreferences.setString("id", id);
     await sharedpreferences.setBool("isLoggedIn", true);
   }
 
@@ -23,7 +23,6 @@ class Storage {
     debugPrint('set token $token');
     await sharedpreferences.setString("token", token);
   }
-
 
   Future<void> setOnBoarding() async {
     await sharedpreferences.setBool("isOnBoarding", true);
@@ -34,7 +33,6 @@ class Storage {
     debugPrint('setDarkMode');
   }
 
-
   Future<void> setIsNew(bool val) async {
     await sharedpreferences.setBool("isNew", val);
   }
@@ -43,13 +41,13 @@ class Storage {
 
   get isDarkMode => sharedpreferences.getBool("dark") ?? false;
 
-
   get isNew => sharedpreferences.getBool("isNew") ?? false;
 
   get isOnBoarding => sharedpreferences.getBool("isOnBoarding") ?? false;
 
   get token => sharedpreferences.getString("token") ?? "";
 
+  get id => sharedpreferences.getString("id") ?? "";
 
   // void logout() {}
   Future<void> logout() async {

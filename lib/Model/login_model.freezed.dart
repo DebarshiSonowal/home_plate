@@ -22,6 +22,7 @@ LoginModel _$LoginModelFromJson(Map<String, dynamic> json) {
 mixin _$LoginModel {
   ProfileModel? get data => throw _privateConstructorUsedError;
   String? get message => throw _privateConstructorUsedError;
+  String? get access_token => throw _privateConstructorUsedError;
   bool get success => throw _privateConstructorUsedError;
 
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -36,7 +37,11 @@ abstract class $LoginModelCopyWith<$Res> {
           LoginModel value, $Res Function(LoginModel) then) =
       _$LoginModelCopyWithImpl<$Res, LoginModel>;
   @useResult
-  $Res call({ProfileModel? data, String? message, bool success});
+  $Res call(
+      {ProfileModel? data,
+      String? message,
+      String? access_token,
+      bool success});
 
   $ProfileModelCopyWith<$Res>? get data;
 }
@@ -56,6 +61,7 @@ class _$LoginModelCopyWithImpl<$Res, $Val extends LoginModel>
   $Res call({
     Object? data = freezed,
     Object? message = freezed,
+    Object? access_token = freezed,
     Object? success = null,
   }) {
     return _then(_value.copyWith(
@@ -66,6 +72,10 @@ class _$LoginModelCopyWithImpl<$Res, $Val extends LoginModel>
       message: freezed == message
           ? _value.message
           : message // ignore: cast_nullable_to_non_nullable
+              as String?,
+      access_token: freezed == access_token
+          ? _value.access_token
+          : access_token // ignore: cast_nullable_to_non_nullable
               as String?,
       success: null == success
           ? _value.success
@@ -95,7 +105,11 @@ abstract class _$$LoginModelImplCopyWith<$Res>
       __$$LoginModelImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call({ProfileModel? data, String? message, bool success});
+  $Res call(
+      {ProfileModel? data,
+      String? message,
+      String? access_token,
+      bool success});
 
   @override
   $ProfileModelCopyWith<$Res>? get data;
@@ -114,6 +128,7 @@ class __$$LoginModelImplCopyWithImpl<$Res>
   $Res call({
     Object? data = freezed,
     Object? message = freezed,
+    Object? access_token = freezed,
     Object? success = null,
   }) {
     return _then(_$LoginModelImpl(
@@ -124,6 +139,10 @@ class __$$LoginModelImplCopyWithImpl<$Res>
       message: freezed == message
           ? _value.message
           : message // ignore: cast_nullable_to_non_nullable
+              as String?,
+      access_token: freezed == access_token
+          ? _value.access_token
+          : access_token // ignore: cast_nullable_to_non_nullable
               as String?,
       success: null == success
           ? _value.success
@@ -136,7 +155,8 @@ class __$$LoginModelImplCopyWithImpl<$Res>
 /// @nodoc
 @JsonSerializable()
 class _$LoginModelImpl with DiagnosticableTreeMixin implements _LoginModel {
-  const _$LoginModelImpl({this.data, this.message, this.success = false});
+  const _$LoginModelImpl(
+      {this.data, this.message, this.access_token, this.success = false});
 
   factory _$LoginModelImpl.fromJson(Map<String, dynamic> json) =>
       _$$LoginModelImplFromJson(json);
@@ -146,12 +166,14 @@ class _$LoginModelImpl with DiagnosticableTreeMixin implements _LoginModel {
   @override
   final String? message;
   @override
+  final String? access_token;
+  @override
   @JsonKey()
   final bool success;
 
   @override
   String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
-    return 'LoginModel(data: $data, message: $message, success: $success)';
+    return 'LoginModel(data: $data, message: $message, access_token: $access_token, success: $success)';
   }
 
   @override
@@ -161,6 +183,7 @@ class _$LoginModelImpl with DiagnosticableTreeMixin implements _LoginModel {
       ..add(DiagnosticsProperty('type', 'LoginModel'))
       ..add(DiagnosticsProperty('data', data))
       ..add(DiagnosticsProperty('message', message))
+      ..add(DiagnosticsProperty('access_token', access_token))
       ..add(DiagnosticsProperty('success', success));
   }
 
@@ -171,12 +194,15 @@ class _$LoginModelImpl with DiagnosticableTreeMixin implements _LoginModel {
             other is _$LoginModelImpl &&
             (identical(other.data, data) || other.data == data) &&
             (identical(other.message, message) || other.message == message) &&
+            (identical(other.access_token, access_token) ||
+                other.access_token == access_token) &&
             (identical(other.success, success) || other.success == success));
   }
 
   @JsonKey(ignore: true)
   @override
-  int get hashCode => Object.hash(runtimeType, data, message, success);
+  int get hashCode =>
+      Object.hash(runtimeType, data, message, access_token, success);
 
   @JsonKey(ignore: true)
   @override
@@ -196,6 +222,7 @@ abstract class _LoginModel implements LoginModel {
   const factory _LoginModel(
       {final ProfileModel? data,
       final String? message,
+      final String? access_token,
       final bool success}) = _$LoginModelImpl;
 
   factory _LoginModel.fromJson(Map<String, dynamic> json) =
@@ -205,6 +232,8 @@ abstract class _LoginModel implements LoginModel {
   ProfileModel? get data;
   @override
   String? get message;
+  @override
+  String? get access_token;
   @override
   bool get success;
   @override

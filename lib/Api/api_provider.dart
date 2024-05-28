@@ -6,6 +6,9 @@ import 'package:home_plate/Model/Generic/generic_response.dart';
 import 'package:home_plate/Model/login_model.dart';
 import 'package:home_plate/Model/registration_model.dart';
 
+import '../Model/Order/order_model.dart';
+import '../Storage/CustomStorage.dart';
+
 class ApiProvider {
   ApiProvider._();
 
@@ -103,8 +106,7 @@ class ApiProvider {
     dio = Dio(option);
     var data = {
       // "email": email,
-      "userName":email,
-      "mobileNo": mobileNo,
+      "userName": email.isEmpty ? mobileNo : email,
       "password": password,
     };
     debugPrint(url.toString());
@@ -265,7 +267,7 @@ class ApiProvider {
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json',
-          // 'Authorization': 'Bearer ${Storage.instance.token}'
+          'Authorization': 'Bearer ${Storage.instance.token}'
           // 'APP-KEY': ConstanceData.app_key
         });
     var url = "$baseUrl/$path/updatePersonalDetails";
@@ -454,7 +456,7 @@ class ApiProvider {
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json',
-          // 'Authorization': 'Bearer ${Storage.instance.token}'
+          'Authorization': 'Bearer ${Storage.instance.token}'
           // 'APP-KEY': ConstanceData.app_key
         });
     var url = "$baseUrl/$path/getMyDetails";
@@ -646,6 +648,48 @@ class ApiProvider {
     } on DioError catch (e) {
       debugPrint("sendDriverProfileForReview error response: ${e.response}");
       return GenericResponse.error(
+        e.response?.data['message'] ?? "Something went wrong",
+      );
+    }
+  }
+
+  Future<OrderResponse> updateLatLongAndGetListOfOrdersForDriver(
+      String driver_id, latitude, longitude) async {
+    BaseOptions option = BaseOptions(
+        connectTimeout: const Duration(seconds: 8),
+        receiveTimeout: const Duration(seconds: 8),
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'Authorization': 'Bearer ${Storage.instance.token}'
+          // 'APP-KEY': ConstanceData.app_key
+        });
+    var url = "$baseUrl/$path/updateLatLongAndGetListOfOrdersForDriver";
+    dio = Dio(option);
+    var data = {
+      "driver_id": driver_id,
+      "latitude": latitude,
+      "longitude": longitude,
+    };
+    debugPrint(url.toString());
+    debugPrint(jsonEncode(data));
+    try {
+      Response? response = await dio?.post(url, data: jsonEncode(data));
+      debugPrint(
+          "updateLatLongAndGetListOfOrdersForDriver response: ${response?.data}");
+      if (response?.statusCode == 200 || response?.statusCode == 201) {
+        return OrderResponse.fromJson(response?.data);
+      } else {
+        debugPrint(
+            "updateLatLongAndGetListOfOrdersForDriver error: ${response?.data}");
+        return OrderResponse.withError(
+          response?.data['message'] ?? "Something went wrong",
+        );
+      }
+    } on DioError catch (e) {
+      debugPrint(
+          "updateLatLongAndGetListOfOrdersForDriver error response: ${e.response}");
+      return OrderResponse.withError(
         e.response?.data['message'] ?? "Something went wrong",
       );
     }

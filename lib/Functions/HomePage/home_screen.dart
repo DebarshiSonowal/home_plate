@@ -5,7 +5,7 @@ import 'package:home_plate/Constants/constants.dart';
 import 'package:intl/intl.dart';
 import 'package:lite_rolling_switch/lite_rolling_switch.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
-
+import 'package:calendar_timeline/calendar_timeline.dart';
 import '../../Navigation/Navigate.dart';
 import '../../Router/routes.dart';
 import 'Widgets/custom_nav_drawer.dart';
@@ -20,6 +20,7 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   bool isActive = false;
+  int selectedDate = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -80,12 +81,104 @@ class _HomeScreenState extends State<HomeScreen> {
               onPressed: () {},
             ),
           ],
-          bottom: const TabBar(
-            tabs: [
-              Tab(text: "Orders Received",),
-              Tab(text: "Orders Accepted",),
-              // Tab(icon: Icon(Icons.directions_bike)),
-            ],
+          bottom: PreferredSize(
+            preferredSize: Size.fromHeight(13.h),
+            child: Column(
+              children: [
+                Container(
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Constants.fifthColor),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  margin: EdgeInsets.symmetric(
+                    horizontal: 5.w,
+                  ),
+                  padding: EdgeInsets.symmetric(
+                    vertical: 1.h,
+                  ),
+                  width: double.infinity,
+                  height: 7.h,
+                  child: ListView.separated(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 3.w,
+                    ),
+                    shrinkWrap: true,
+                    scrollDirection: Axis.horizontal,
+                    itemBuilder: (context, index) {
+                      final today = DateTime.now();
+                      return GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            selectedDate = index;
+                          });
+                        },
+                        child: SizedBox(
+                          width: 10.w,
+                          height: 10.h,
+                          child: AutoSizeText.rich(
+                            TextSpan(
+                              children: [
+                                TextSpan(
+                                  text:
+                                      "${DateFormat("EE").format(today.add(Duration(days: index)))}\n",
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .bodySmall
+                                      ?.copyWith(
+                                        color: selectedDate == index
+                                            ? Constants.secondaryColor
+                                            : Constants.fifthColor,
+                                        fontSize: 16.sp,
+                                        fontWeight: selectedDate == index
+                                            ? FontWeight.bold
+                                            : FontWeight.normal,
+                                      ),
+                                ),
+                                TextSpan(
+                                  text: DateFormat("dd")
+                                      .format(today.add(Duration(days: index))),
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .bodySmall
+                                      ?.copyWith(
+                                        color: selectedDate == index
+                                            ? Constants.secondaryColor
+                                            : Constants.fifthColor,
+                                        fontSize: 16.sp,
+                                        fontWeight: selectedDate == index
+                                            ? FontWeight.bold
+                                            : FontWeight.normal,
+                                      ),
+                                ),
+                              ],
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      );
+                    },
+                    separatorBuilder: (context, index) {
+                      return SizedBox(
+                        width: 2.w,
+                      );
+                    },
+                    itemCount: 7,
+
+                  ),
+                ),
+                const TabBar(
+                  tabs: [
+                    Tab(
+                      text: "Opportunities",
+                    ),
+                    Tab(
+                      text: "Upcoming Orders",
+                    ),
+                    // Tab(icon: Icon(Icons.directions_bike)),
+                  ],
+                ),
+              ],
+            ),
           ),
         ),
         drawer: const CustomNavigationDrawer(),
@@ -130,6 +223,3 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 }
-
-
-

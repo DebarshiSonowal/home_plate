@@ -72,6 +72,8 @@ dependencies:
   intro_slider: ^4.2.1
   freezed_annotation: ^2.4.1
   json_annotation: ^4.8.1
+  font_awesome_flutter: ^10.7.0
+  calendar_timeline: ^1.1.2
 
 #  freezed_annotation: ^2.4.1
 #  svg_icon: ^0.0.1

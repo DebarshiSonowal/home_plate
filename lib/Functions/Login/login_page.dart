@@ -668,7 +668,7 @@ class _LoginScreenState extends State<LoginScreen> {
     final response = await ApiProvider.instance
         .login(email.text, convertPhoneNumber(mobile.text), password.text);
     if (response.success) {
-      Storage.instance.setUser("${response.data?.id}");
+      Storage.instance.setUser(response.access_token??"","${response.data?.id}");
       Navigation.instance.navigateAndRemoveUntil(Routes.getOrderScreen);
     } else {
       var snackBar = SnackBar(

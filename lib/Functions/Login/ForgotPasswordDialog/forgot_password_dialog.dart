@@ -36,10 +36,10 @@ class _ForgotPasswordDialogState extends State<ForgotPasswordDialog> {
         child: AutoSizeText(
           "Forgot Password",
           style: Theme.of(context).textTheme.bodySmall?.copyWith(
-            color: Constants.fourthColor,
-            fontSize: 20.sp,
-            fontWeight: FontWeight.bold,
-          ),
+                color: Constants.fourthColor,
+                fontSize: 20.sp,
+                fontWeight: FontWeight.bold,
+              ),
           textAlign: TextAlign.center,
         ),
       ),
@@ -88,9 +88,9 @@ class _ForgotPasswordDialogState extends State<ForgotPasswordDialog> {
                     fillColor: Colors.white70,
                   ),
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: Constants.fourthColor,
-                    fontSize: 15.sp,
-                  ),
+                        color: Constants.fourthColor,
+                        fontSize: 15.sp,
+                      ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return 'Please enter your name';
@@ -157,9 +157,9 @@ class _ForgotPasswordDialogState extends State<ForgotPasswordDialog> {
                     return null;
                   },
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: Constants.fourthColor,
-                    fontSize: 15.sp,
-                  ),
+                        color: Constants.fourthColor,
+                        fontSize: 15.sp,
+                      ),
                 ),
               ),
               SizedBox(height: 2.h),
@@ -214,9 +214,9 @@ class _ForgotPasswordDialogState extends State<ForgotPasswordDialog> {
                     ),
                   ),
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: Constants.fourthColor,
-                    fontSize: 15.sp,
-                  ),
+                        color: Constants.fourthColor,
+                        fontSize: 15.sp,
+                      ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return 'Please enter your name';
@@ -234,10 +234,10 @@ class _ForgotPasswordDialogState extends State<ForgotPasswordDialog> {
           child: Text(
             'Cancel',
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
-              color: Constants.secondaryColor,
-              fontWeight: FontWeight.bold,
-              fontSize: 16.sp,
-            ),
+                  color: Constants.secondaryColor,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16.sp,
+                ),
           ),
           onPressed: () {
             Navigator.of(context).pop(); // Close the dialog
@@ -247,10 +247,10 @@ class _ForgotPasswordDialogState extends State<ForgotPasswordDialog> {
           child: Text(
             'Confirm',
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
-              color: Constants.seventhColor,
-              fontWeight: FontWeight.bold,
-              fontSize: 16.sp,
-            ),
+                  color: Constants.seventhColor,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16.sp,
+                ),
           ),
           onPressed: () {
             if (_userNameController.text.isNotEmpty &&
@@ -258,7 +258,12 @@ class _ForgotPasswordDialogState extends State<ForgotPasswordDialog> {
                 _confirmPasswordController.text.isNotEmpty &&
                 (_passwordController.text == _confirmPasswordController.text)) {
               if (validatePassword(_passwordController.text)) {
-                forgotPassword();
+                if (validateMobile(_userNameController.text) ||
+                    validateEmail(_userNameController.text)) {
+                  forgotPassword();
+                } else {
+                  Fluttertoast.showToast(msg: "Please Enter a valid Email or Password");
+                }
               } else {
                 Fluttertoast.showToast(msg: "Please Enter a valid password");
               }
@@ -269,6 +274,29 @@ class _ForgotPasswordDialogState extends State<ForgotPasswordDialog> {
         ),
       ],
     );
+  }
+
+  bool validateMobile(String value) {
+    String pattern =
+        r'^(?:\+?\d{1,3})?[- ]?\(?(?:\d{3})\)?[- ]?\d{3}[- ]?\d{4}$';
+    RegExp regExp = RegExp(pattern);
+    if (value.isEmpty) {
+      return false;
+    } else if (!regExp.hasMatch(value.replaceAll('-', ''))) {
+      return false;
+    }
+    return true;
+  }
+
+  bool validateEmail(String value) {
+    String pattern =
+        r'^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$';
+    RegExp regex = RegExp(pattern);
+    if (!regex.hasMatch(value)) {
+      return false;
+    } else {
+      return true;
+    }
   }
 
   bool validatePassword(String password) {
