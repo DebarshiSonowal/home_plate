@@ -1,5 +1,6 @@
 
 import 'package:flutter/material.dart';
+import 'package:home_plate/Storage/CustomStorage.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 
 import '../../../Constants/constants.dart';
@@ -215,6 +216,7 @@ class CustomNavigationDrawer extends StatelessWidget {
             ),
           ),
           onTap: () {
+            Storage.instance.logout();
             Navigation.instance.navigate(Routes.loginScreen);
           },
         ),
