@@ -4,11 +4,13 @@ import 'package:auto_size_text/auto_size_text.dart';
 import 'package:faker/faker.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:home_plate/Functions/HomePage/Widgets/alert_body.dart';
 import 'package:intl/intl.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 
 import '../../../Constants/constants.dart';
+import '../../../Model/Order/order_model.dart';
 import '../../../Navigation/Navigate.dart';
 import '../../../Router/routes.dart';
 import 'address_info_dialog.dart';
@@ -16,7 +18,10 @@ import 'address_info_dialog.dart';
 class OrderCard extends StatelessWidget {
   const OrderCard({
     super.key,
+    required this.item,
   });
+
+  final OrderModel item;
 
   @override
   Widget build(BuildContext context) {
@@ -48,7 +53,7 @@ class OrderCard extends StatelessWidget {
                 SizedBox(
                   width: 80.w,
                   child: AutoSizeText(
-                    "#HP${Random().nextInt(100000)} (#HPSUB${Random().nextInt(10000)})",
+                    "#${item.orderId} (${item.subOrderId})",
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
                           color: Constants.fifthColor,
                           fontSize: 16.sp,
@@ -94,8 +99,8 @@ class OrderCard extends StatelessWidget {
                                   ),
                         ),
                         TextSpan(
-                          text:
-                              "  ${DateFormat("dd/MM/yyyy").format(Faker().date.dateTime())}",
+                          text: "  ${item.orders?.deliveryDate}",
+                          // "  ${DateFormat("dd/MM/yyyy").format(Faker().date.dateTime())}",
                           style:
                               Theme.of(context).textTheme.bodySmall?.copyWith(
                                     color: Colors.black,
@@ -113,7 +118,7 @@ class OrderCard extends StatelessWidget {
                 SizedBox(
                   width: 30.w,
                   child: AutoSizeText(
-                    "  10 AM - 1 PM",
+                    "  ${item.orders?.deliveryTime}",
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
                           color: Colors.black,
                           fontSize: 14.sp,
@@ -142,7 +147,7 @@ class OrderCard extends StatelessWidget {
                                   ),
                         ),
                         TextSpan(
-                          text: " CA\$ 20",
+                          text: " \$${item.orders?.grandTotal}",
                           style:
                               Theme.of(context).textTheme.bodySmall?.copyWith(
                                     color: Colors.black,
@@ -156,7 +161,6 @@ class OrderCard extends StatelessWidget {
               ],
             ),
             const Divider(),
-
             Row(
               children: [
                 Icon(
@@ -170,7 +174,7 @@ class OrderCard extends StatelessWidget {
                 SizedBox(
                   width: 80.w,
                   child: AutoSizeText(
-                    "  ${Faker().address.city()},${Faker().address.state()}",
+                    "  ${item.chefs?.addressLine1}",
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
                           color: Colors.black,
                           fontWeight: FontWeight.bold,
@@ -196,12 +200,12 @@ class OrderCard extends StatelessWidget {
                 SizedBox(
                   width: 80.w,
                   child: AutoSizeText(
-                    "  ${Faker().address.city()},${Faker().address.state()}",
+                    "  ${item.orders?.shippingAddress}",
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: Colors.black,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 15.sp,
-                    ),
+                          color: Colors.black,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 15.sp,
+                        ),
                   ),
                 ),
               ],
@@ -224,10 +228,10 @@ class OrderCard extends StatelessWidget {
                   child: AutoSizeText(
                     "  18.5 Km. 30 min",
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: Colors.black,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 15.sp,
-                    ),
+                          color: Colors.black,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 15.sp,
+                        ),
                   ),
                 ),
               ],
@@ -245,7 +249,7 @@ class OrderCard extends StatelessWidget {
                     width: 35.w,
                     child: GestureDetector(
                       onTap: () {
-                        showLocation(context);
+                        showLocation(context, item);
                       },
                       child: AutoSizeText.rich(
                         TextSpan(
@@ -330,15 +334,35 @@ class OrderCard extends StatelessWidget {
     );
   }
 
-  void showLocation(context) {
+  void showLocation(context, OrderModel item) {
     showDialog(
         context: context,
         builder: (context) {
-          return const Dialog(
+          return Dialog(
             backgroundColor: Constants.primaryColor,
-            child: AddressInfoDialog(),
+            child: AddressInfoDialog(
+              item: item,
+              // distance: fetchLocationDetails(
+              //   item.chefs?.latitude,
+              //   item.chefs?.longitude,
+              //   item.orders!.latitude,
+              //   item.orders!.longitude,
+              // ),
+              pickUpLat: double.parse(item.chefs?.latitude ?? ""),
+              pickUpLong: double.parse(item.chefs?.longitude ?? ""),
+              destLat: double.parse(item.orders?.latitude ?? ""),
+              destLong: double.parse(item.orders?.longitude ?? ""),
+            ),
           );
         });
+  }
+
+  double fetchLocationDetails(pickUpLat, pickUpLong, destLat, destLong) {
+    return Geolocator.distanceBetween(
+        double.parse(pickUpLat),
+        double.parse(pickUpLong),
+        double.parse(destLat),
+        double.parse(destLong));
   }
 
   void showAlertInfo(context) {
@@ -498,7 +522,7 @@ class AcceptedOrderCard extends StatelessWidget {
                     width: 35.w,
                     child: GestureDetector(
                       onTap: () {
-                        showLocation(context);
+                        // showLocation(context);
                       },
                       child: AutoSizeText.rich(
                         TextSpan(
@@ -557,14 +581,26 @@ class AcceptedOrderCard extends StatelessWidget {
     );
   }
 
-  void showLocation(context) {
-    showDialog(
-        context: context,
-        builder: (context) {
-          return const Dialog(
-            backgroundColor: Constants.primaryColor,
-            child: AddressInfoDialog(),
-          );
-        });
+  void showLocation(context, OrderModel item) {
+    // showDialog(
+    //     context: context,
+    //     builder: (context) {
+    //       return Dialog(
+    //         backgroundColor: Constants.primaryColor,
+    //         child: AddressInfoDialog(
+    //           item: item,
+    //           distance: fetchLocationDetails(
+    //             item.chefs?.latitude,
+    //             item.chefs?.longitude,
+    //             item.orders!.latitude,
+    //             item.orders!.longitude,
+    //           ),
+    //         ),
+    //       );
+    //     });
+  }
+
+  double fetchLocationDetails(pickUpLat, pickUpLong, destLat, destLong) {
+    return Geolocator.distanceBetween(pickUpLat, pickUpLong, destLat, destLong);
   }
 }

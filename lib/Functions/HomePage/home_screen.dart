@@ -1,14 +1,19 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:faker/faker.dart';
 import 'package:flutter/material.dart';
+import 'package:home_plate/Api/api_provider.dart';
 import 'package:home_plate/Constants/constants.dart';
+import 'package:home_plate/Repository/repository.dart';
 import 'package:intl/intl.dart';
 import 'package:lite_rolling_switch/lite_rolling_switch.dart';
+import 'package:provider/provider.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:calendar_timeline/calendar_timeline.dart';
+import '../../Model/Order/order_model.dart';
 import '../../Navigation/Navigate.dart';
 import '../../Router/routes.dart';
 import 'Widgets/custom_nav_drawer.dart';
+import 'Widgets/date_appbar.dart';
 import 'Widgets/order_card.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -21,6 +26,15 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   bool isActive = false;
   int selectedDate = 0;
+
+
+  @override
+  void initState() {
+    super.initState();
+    Future.delayed(Duration.zero,(){
+      fetchProfile();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -83,101 +97,13 @@ class _HomeScreenState extends State<HomeScreen> {
           ],
           bottom: PreferredSize(
             preferredSize: Size.fromHeight(13.h),
-            child: Column(
-              children: [
-                Container(
-                  decoration: BoxDecoration(
-                    border: Border.all(color: Constants.fifthColor),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  margin: EdgeInsets.symmetric(
-                    horizontal: 5.w,
-                  ),
-                  padding: EdgeInsets.symmetric(
-                    vertical: 1.h,
-                  ),
-                  width: double.infinity,
-                  height: 7.h,
-                  child: ListView.separated(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: 3.w,
-                    ),
-                    shrinkWrap: true,
-                    scrollDirection: Axis.horizontal,
-                    itemBuilder: (context, index) {
-                      final today = DateTime.now();
-                      return GestureDetector(
-                        onTap: () {
-                          setState(() {
-                            selectedDate = index;
-                          });
-                        },
-                        child: SizedBox(
-                          width: 10.w,
-                          height: 10.h,
-                          child: AutoSizeText.rich(
-                            TextSpan(
-                              children: [
-                                TextSpan(
-                                  text:
-                                      "${DateFormat("EE").format(today.add(Duration(days: index)))}\n",
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .bodySmall
-                                      ?.copyWith(
-                                        color: selectedDate == index
-                                            ? Constants.secondaryColor
-                                            : Constants.fifthColor,
-                                        fontSize: 16.sp,
-                                        fontWeight: selectedDate == index
-                                            ? FontWeight.bold
-                                            : FontWeight.normal,
-                                      ),
-                                ),
-                                TextSpan(
-                                  text: DateFormat("dd")
-                                      .format(today.add(Duration(days: index))),
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .bodySmall
-                                      ?.copyWith(
-                                        color: selectedDate == index
-                                            ? Constants.secondaryColor
-                                            : Constants.fifthColor,
-                                        fontSize: 16.sp,
-                                        fontWeight: selectedDate == index
-                                            ? FontWeight.bold
-                                            : FontWeight.normal,
-                                      ),
-                                ),
-                              ],
-                            ),
-                            textAlign: TextAlign.center,
-                          ),
-                        ),
-                      );
-                    },
-                    separatorBuilder: (context, index) {
-                      return SizedBox(
-                        width: 2.w,
-                      );
-                    },
-                    itemCount: 7,
-
-                  ),
-                ),
-                const TabBar(
-                  tabs: [
-                    Tab(
-                      text: "Opportunities",
-                    ),
-                    Tab(
-                      text: "Upcoming Orders",
-                    ),
-                    // Tab(icon: Icon(Icons.directions_bike)),
-                  ],
-                ),
-              ],
+            child: DateBarAppbar(
+              selectedDate: selectedDate,
+              updateDate: (val) {
+                setState(() {
+                  selectedDate = val;
+                });
+              },
             ),
           ),
         ),
@@ -193,16 +119,35 @@ class _HomeScreenState extends State<HomeScreen> {
           height: double.infinity,
           child: TabBarView(
             children: [
-              ListView.separated(
-                itemBuilder: (context, index) {
-                  return const OrderCard();
-                },
-                separatorBuilder: (context, index) {
-                  return SizedBox(
-                    height: 1.5.h,
+              FutureBuilder<List<OrderModel>>(
+                builder: (context, data) {
+                  if (data.hasError) {
+                    return const Center(child: Text("Something went wrong"));
+                  }
+                  if (data.hasData) {
+                    return ListView.separated(
+                      itemBuilder: (context, index) {
+                        final item = data.data![index];
+                        return OrderCard(item: item);
+                      },
+                      separatorBuilder: (context, index) {
+                        return SizedBox(
+                          height: 1.5.h,
+                        );
+                      },
+                      itemCount: (data.data ?? []).length,
+                    );
+                  }
+                  return Center(
+                    child: SizedBox(
+                      height: 10.h,
+                      child: const CircularProgressIndicator(
+                        color: Constants.secondaryColor,
+                      ),
+                    ),
                   );
                 },
-                itemCount: 4,
+                future: fetchOrders(context),
               ),
               ListView.separated(
                 itemBuilder: (context, index) {
@@ -221,5 +166,28 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       ),
     );
+  }
+
+  Future<List<OrderModel>> fetchOrders(context) async {
+    final response = await ApiProvider.instance
+        .updateLatLongAndGetListOfOrdersForDriver(13, 45.6346186, -73.7949733,
+            selectedDate);
+    if (response.success ?? false) {
+      debugPrint("fetched1 ${response.orders ?? []}");
+      Provider.of<Repository>(context, listen: false)
+          .setOpportunities(response.orders ?? []);
+      return response.orders ?? [];
+    } else {
+      debugPrint("fetched2 ${response.orders ?? []}");
+      return [];
+    }
+  }
+  fetchProfile() async{
+    final response = await ApiProvider.instance.getMyDetails();
+    if (response.success??false){
+        Provider.of<Repository>(context,listen: false).setProfileModel(response.data!);
+    }else{
+
+    }
   }
 }

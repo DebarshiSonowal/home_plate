@@ -46,183 +46,423 @@ class _ForgotPasswordDialogState extends State<ForgotPasswordDialog> {
       content: Container(
         // color: Constants.bgColor,
         width: 90.w,
-        child: Form(
-          key: _formKey,
+        child: SingleChildScrollView(
           child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
-              SizedBox(
-                width: 90.w,
-                child: TextFormField(
-                  controller: _userNameController,
-                  keyboardType: TextInputType.name,
-                  decoration: InputDecoration(
-                    counterStyle: const TextStyle(
-                      height: double.minPositive,
-                    ),
-                    counterText: "",
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10.0),
-                      borderSide: const BorderSide(
-                        color: Constants.fourthColor,
+            children: [
+              Form(
+                key: _formKey,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    SizedBox(
+                      width: 90.w,
+                      child: TextFormField(
+                        controller: _userNameController,
+                        keyboardType: TextInputType.name,
+                        decoration: InputDecoration(
+                          counterStyle: const TextStyle(
+                            height: double.minPositive,
+                          ),
+                          counterText: "",
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10.0),
+                            borderSide: const BorderSide(
+                              color: Constants.fourthColor,
+                            ),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10.0),
+                            borderSide: const BorderSide(
+                              color: Constants.fourthColor,
+                            ),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10.0),
+                            borderSide: const BorderSide(
+                              color: Constants.fourthColor,
+                            ),
+                          ),
+                          filled: true,
+                          hintStyle: TextStyle(
+                            color: Colors.grey[800],
+                            fontSize: 15.sp,
+                          ),
+                          hintText: "Username",
+                          fillColor: Colors.white70,
+                        ),
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                              color: Constants.fourthColor,
+                              fontSize: 15.sp,
+                            ),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please enter your name';
+                          }
+                          return null;
+                        },
                       ),
                     ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10.0),
-                      borderSide: const BorderSide(
-                        color: Constants.fourthColor,
+                    SizedBox(height: 2.h),
+                    SizedBox(
+                      width: 90.w,
+                      child: TextFormField(
+                        controller: _passwordController,
+                        keyboardType: TextInputType.visiblePassword,
+                        obscureText: isVisible,
+                        onChanged: (val){
+                          setState(() {
+
+                          });
+                        },
+                        decoration: InputDecoration(
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10.0),
+                            borderSide: const BorderSide(
+                              color: Constants.fourthColor,
+                            ),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10.0),
+                            borderSide: const BorderSide(
+                              color: Constants.fourthColor,
+                            ),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10.0),
+                            borderSide: const BorderSide(
+                              color: Constants.fourthColor,
+                            ),
+                          ),
+                          filled: true,
+                          hintStyle: TextStyle(
+                            color: Colors.grey[800],
+                            fontSize: 15.sp,
+                          ),
+                          hintText: "Password",
+                          fillColor: Colors.white70,
+                          prefixIcon: const Icon(
+                            Icons.password,
+                            color: Constants.fourthColor,
+                          ),
+                          suffixIcon: GestureDetector(
+                            onTap: () {
+                              setState(() {
+                                isVisible = !isVisible;
+                              });
+                            },
+                            child: Icon(
+                              !isVisible
+                                  ? Icons.remove_red_eye_outlined
+                                  : Icons.remove_red_eye_sharp,
+                              color: Constants.fourthColor,
+                            ),
+                          ),
+                        ),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please enter your name';
+                          }
+                          return null;
+                        },
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                              color: Constants.fourthColor,
+                              fontSize: 15.sp,
+                            ),
                       ),
                     ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10.0),
-                      borderSide: const BorderSide(
-                        color: Constants.fourthColor,
+                    validationPassword(_passwordController.text)
+                        ? Container()
+                        : SizedBox(
+                            height: 1.h,
+                          ),
+                    validationPassword(_passwordController.text)
+                        ? Container()
+                        : Container(
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 2.5.w,
+                              vertical: 1.h,
+                            ),
+                            decoration: BoxDecoration(
+                                color: Constants.primaryColor,
+                                borderRadius: BorderRadius.circular(10),
+                                border: Border.all(
+                                  color: Colors.black,
+                                )),
+                            width: double.infinity,
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                AutoSizeText.rich(
+                                  TextSpan(
+                                    children: [
+                                      TextSpan(
+                                        text:
+                                            "Password should meet the following requirements",
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .bodySmall
+                                            ?.copyWith(
+                                              color: Colors.black87,
+                                              fontSize: 15.sp,
+                                              // fontWeight: FontWeight.bold,
+                                            ),
+                                      ),
+                                    ],
+                                  ),
+                                  textAlign: TextAlign.start,
+                                ),
+                                SizedBox(
+                                  height: 0.5.h,
+                                ),
+                                Row(
+                                  children: [
+                                    Icon(
+                                      hasUppercase(_passwordController.text)
+                                          ? Icons.check
+                                          : Icons.cancel,
+                                      color: hasUppercase(_passwordController.text)
+                                          ? Constants.seventhColor
+                                          : Constants.secondaryColor,
+                                    ),
+                                    SizedBox(
+                                      width: 2.w,
+                                    ),
+                                    AutoSizeText.rich(
+                                      TextSpan(
+                                        children: [
+                                          TextSpan(
+                                            text: "Atleast one uppercase letter",
+                                            style: Theme.of(context)
+                                                .textTheme
+                                                .bodySmall
+                                                ?.copyWith(
+                                                  color: hasUppercase(
+                                                          _passwordController.text)
+                                                      ? Constants.seventhColor
+                                                      : Constants.secondaryColor,
+                                                  fontSize: 15.sp,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                          ),
+                                        ],
+                                      ),
+                                      textAlign: TextAlign.start,
+                                    ),
+                                  ],
+                                ),
+                                Row(
+                                  children: [
+                                    Icon(
+                                      hasLowercase(_passwordController.text)
+                                          ? Icons.check
+                                          : Icons.cancel,
+                                      color: hasLowercase(_passwordController.text)
+                                          ? Constants.seventhColor
+                                          : Constants.secondaryColor,
+                                    ),
+                                    SizedBox(
+                                      width: 2.w,
+                                    ),
+                                    AutoSizeText.rich(
+                                      TextSpan(
+                                        children: [
+                                          TextSpan(
+                                            text: "Atleast one lowercase letter",
+                                            style: Theme.of(context)
+                                                .textTheme
+                                                .bodySmall
+                                                ?.copyWith(
+                                                  color: hasLowercase(
+                                                          _passwordController.text)
+                                                      ? Constants.seventhColor
+                                                      : Constants.secondaryColor,
+                                                  fontSize: 15.sp,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                          ),
+                                        ],
+                                      ),
+                                      textAlign: TextAlign.start,
+                                    ),
+                                  ],
+                                ),
+                                Row(
+                                  children: [
+                                    Icon(
+                                      hasNumber(_passwordController.text)
+                                          ? Icons.check
+                                          : Icons.cancel,
+                                      color: hasNumber(_passwordController.text)
+                                          ? Constants.seventhColor
+                                          : Constants.secondaryColor,
+                                    ),
+                                    SizedBox(
+                                      width: 2.w,
+                                    ),
+                                    AutoSizeText.rich(
+                                      TextSpan(
+                                        children: [
+                                          TextSpan(
+                                            text: "Atleast one number",
+                                            style: Theme.of(context)
+                                                .textTheme
+                                                .bodySmall
+                                                ?.copyWith(
+                                                  color: hasNumber(
+                                                          _passwordController.text)
+                                                      ? Constants.seventhColor
+                                                      : Constants.secondaryColor,
+                                                  fontSize: 15.sp,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                          ),
+                                        ],
+                                      ),
+                                      textAlign: TextAlign.start,
+                                    ),
+                                  ],
+                                ),
+                                Row(
+                                  children: [
+                                    Icon(
+                                      hasSpecialCharacter(_passwordController.text)
+                                          ? Icons.check
+                                          : Icons.cancel,
+                                      color: hasSpecialCharacter(
+                                              _passwordController.text)
+                                          ? Constants.seventhColor
+                                          : Constants.secondaryColor,
+                                    ),
+                                    SizedBox(
+                                      width: 2.w,
+                                    ),
+                                    AutoSizeText.rich(
+                                      TextSpan(
+                                        children: [
+                                          TextSpan(
+                                            text: "Atleast one special character",
+                                            style: Theme.of(context)
+                                                .textTheme
+                                                .bodySmall
+                                                ?.copyWith(
+                                                  color: hasSpecialCharacter(
+                                                          _passwordController.text)
+                                                      ? Constants.seventhColor
+                                                      : Constants.secondaryColor,
+                                                  fontSize: 15.sp,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                          ),
+                                        ],
+                                      ),
+                                      textAlign: TextAlign.start,
+                                    ),
+                                  ],
+                                ),
+                                Row(
+                                  children: [
+                                    Icon(
+                                      hasMinLength(_passwordController.text)
+                                          ? Icons.check
+                                          : Icons.cancel,
+                                      color: hasMinLength(_passwordController.text)
+                                          ? Constants.seventhColor
+                                          : Constants.secondaryColor,
+                                    ),
+                                    SizedBox(
+                                      width: 2.w,
+                                    ),
+                                    AutoSizeText.rich(
+                                      TextSpan(
+                                        children: [
+                                          TextSpan(
+                                            text: "Be atleast 8 characters",
+                                            style: Theme.of(context)
+                                                .textTheme
+                                                .bodySmall
+                                                ?.copyWith(
+                                                  color: hasMinLength(
+                                                          _passwordController.text)
+                                                      ? Constants.seventhColor
+                                                      : Constants.secondaryColor,
+                                                  fontSize: 15.sp,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                          ),
+                                        ],
+                                      ),
+                                      textAlign: TextAlign.start,
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                    SizedBox(height: 2.h),
+                    SizedBox(
+                      width: 90.w,
+                      child: TextFormField(
+                        controller: _confirmPasswordController,
+                        keyboardType: TextInputType.visiblePassword,
+                        obscureText: isVisible2,
+                        decoration: InputDecoration(
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10.0),
+                            borderSide: const BorderSide(
+                              color: Constants.fourthColor,
+                            ),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10.0),
+                            borderSide: const BorderSide(
+                              color: Constants.fourthColor,
+                            ),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10.0),
+                            borderSide: const BorderSide(
+                              color: Constants.fourthColor,
+                            ),
+                          ),
+                          filled: true,
+                          hintStyle: TextStyle(
+                            color: Colors.grey[800],
+                            fontSize: 15.sp,
+                          ),
+                          hintText: "Confirm Password",
+                          fillColor: Colors.white70,
+                          prefixIcon: const Icon(
+                            Icons.password,
+                            color: Constants.fourthColor,
+                          ),
+                          suffixIcon: GestureDetector(
+                            onTap: () {
+                              setState(() {
+                                isVisible2 = !isVisible2;
+                              });
+                            },
+                            child: Icon(
+                              !isVisible2
+                                  ? Icons.remove_red_eye_outlined
+                                  : Icons.remove_red_eye_sharp,
+                              color: Constants.fourthColor,
+                            ),
+                          ),
+                        ),
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                              color: Constants.fourthColor,
+                              fontSize: 15.sp,
+                            ),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please enter your name';
+                          }
+                          return null;
+                        },
                       ),
                     ),
-                    filled: true,
-                    hintStyle: TextStyle(
-                      color: Colors.grey[800],
-                      fontSize: 15.sp,
-                    ),
-                    hintText: "Username",
-                    fillColor: Colors.white70,
-                  ),
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: Constants.fourthColor,
-                        fontSize: 15.sp,
-                      ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter your name';
-                    }
-                    return null;
-                  },
-                ),
-              ),
-              SizedBox(height: 2.h),
-              SizedBox(
-                width: 90.w,
-                child: TextFormField(
-                  controller: _passwordController,
-                  keyboardType: TextInputType.visiblePassword,
-                  obscureText: isVisible,
-                  decoration: InputDecoration(
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10.0),
-                      borderSide: const BorderSide(
-                        color: Constants.fourthColor,
-                      ),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10.0),
-                      borderSide: const BorderSide(
-                        color: Constants.fourthColor,
-                      ),
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10.0),
-                      borderSide: const BorderSide(
-                        color: Constants.fourthColor,
-                      ),
-                    ),
-                    filled: true,
-                    hintStyle: TextStyle(
-                      color: Colors.grey[800],
-                      fontSize: 15.sp,
-                    ),
-                    hintText: "Password",
-                    fillColor: Colors.white70,
-                    prefixIcon: const Icon(
-                      Icons.password,
-                      color: Constants.fourthColor,
-                    ),
-                    suffixIcon: GestureDetector(
-                      onTap: () {
-                        setState(() {
-                          isVisible = !isVisible;
-                        });
-                      },
-                      child: Icon(
-                        !isVisible
-                            ? Icons.remove_red_eye_outlined
-                            : Icons.remove_red_eye_sharp,
-                        color: Constants.fourthColor,
-                      ),
-                    ),
-                  ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter your name';
-                    }
-                    return null;
-                  },
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: Constants.fourthColor,
-                        fontSize: 15.sp,
-                      ),
-                ),
-              ),
-              SizedBox(height: 2.h),
-              SizedBox(
-                width: 90.w,
-                child: TextFormField(
-                  controller: _confirmPasswordController,
-                  keyboardType: TextInputType.visiblePassword,
-                  obscureText: isVisible2,
-                  decoration: InputDecoration(
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10.0),
-                      borderSide: const BorderSide(
-                        color: Constants.fourthColor,
-                      ),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10.0),
-                      borderSide: const BorderSide(
-                        color: Constants.fourthColor,
-                      ),
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10.0),
-                      borderSide: const BorderSide(
-                        color: Constants.fourthColor,
-                      ),
-                    ),
-                    filled: true,
-                    hintStyle: TextStyle(
-                      color: Colors.grey[800],
-                      fontSize: 15.sp,
-                    ),
-                    hintText: "Confirm Password",
-                    fillColor: Colors.white70,
-                    prefixIcon: const Icon(
-                      Icons.password,
-                      color: Constants.fourthColor,
-                    ),
-                    suffixIcon: GestureDetector(
-                      onTap: () {
-                        setState(() {
-                          isVisible2 = !isVisible2;
-                        });
-                      },
-                      child: Icon(
-                        !isVisible2
-                            ? Icons.remove_red_eye_outlined
-                            : Icons.remove_red_eye_sharp,
-                        color: Constants.fourthColor,
-                      ),
-                    ),
-                  ),
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: Constants.fourthColor,
-                        fontSize: 15.sp,
-                      ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter your name';
-                    }
-                    return null;
-                  },
+                  ],
                 ),
               ),
             ],
@@ -262,7 +502,8 @@ class _ForgotPasswordDialogState extends State<ForgotPasswordDialog> {
                     validateEmail(_userNameController.text)) {
                   forgotPassword();
                 } else {
-                  Fluttertoast.showToast(msg: "Please Enter a valid Email or Password");
+                  Fluttertoast.showToast(
+                      msg: "Please Enter a valid Email or Password");
                 }
               } else {
                 Fluttertoast.showToast(msg: "Please Enter a valid password");
@@ -313,12 +554,42 @@ class _ForgotPasswordDialogState extends State<ForgotPasswordDialog> {
         _confirmPasswordController.text,
         _confirmPasswordController.text);
     if (response.success ?? false) {
+      Navigator.of(context).pop();
       Fluttertoast.showToast(
           msg: response.message ?? "Password Changed Successfully");
-      Navigator.of(context).pop();
     } else {
       Fluttertoast.showToast(msg: response.message ?? "Something went wrong");
-      Navigator.of(context).pop();
     }
+  }
+
+  bool validationPassword(String password) {
+    // Regex pattern for password validation
+    if (password.isEmpty) {
+      return true;
+    }
+    String pattern =
+        r'^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[!@#\$&*~]).{8,}$';
+    RegExp regex = RegExp(pattern);
+    return regex.hasMatch(password);
+  }
+
+  bool hasUppercase(String password) {
+    return password.contains(RegExp(r'[A-Z]'));
+  }
+
+  bool hasLowercase(String password) {
+    return password.contains(RegExp(r'[a-z]'));
+  }
+
+  bool hasNumber(String password) {
+    return password.contains(RegExp(r'[0-9]'));
+  }
+
+  bool hasSpecialCharacter(String password) {
+    return password.contains(RegExp(r'[!@#\$&*~]'));
+  }
+
+  bool hasMinLength(String password) {
+    return password.length >= 8;
   }
 }

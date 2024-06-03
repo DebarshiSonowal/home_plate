@@ -1,12 +1,21 @@
+import 'package:flutter/material.dart';
+
 class OrderResponse{
   bool? success;
   String? message;
-  List<OrderModel> orders=[];
+  List<OrderModel>? orders;
 
   OrderResponse.fromJson(json){
+
     success = json['success']??false;
     message = json['message']??"";
-    orders = json['data']==null?[] : (json['data'] as List).map((e) => OrderModel.fromJson(e)).toList();
+    try {
+      orders = (json['data'] as List).map((e) => OrderModel.fromJson(e)).toList();
+    } catch (e) {
+      print(e);
+    }
+    debugPrint(
+        "updateLatLongAndGetListOfOrdersForDriver response2: $orders");
   }
 
   OrderResponse.withError(msg){
@@ -15,8 +24,6 @@ class OrderResponse{
   }
 
 }
-
-
 
 class OrderModel {
   int? id;
@@ -98,8 +105,8 @@ class OrderModel {
     createdAt = json['created_at'];
     updatedAt = json['updated_at'];
     orders =
-    json['orders'] != null ? new Orders.fromJson(json['orders']) : null;
-    chefs = json['chefs'] != null ? new Chefs.fromJson(json['chefs']) : null;
+    json['orders'] != null ? Orders.fromJson(json['orders']) : null;
+    chefs = json['chefs'] != null ? Chefs.fromJson(json['chefs']) : null;
     if (json['order_items'] != null) {
       orderItems = <OrderItems>[];
       json['order_items'].forEach((v) {
@@ -167,7 +174,7 @@ class Orders {
   String? grandTotal;
   String? userId;
   String? shippingAddress;
-  Null? city;
+  String? city;
   String? state;
   String? latitude;
   String? longitude;
@@ -177,7 +184,7 @@ class Orders {
   String? deliveryTime;
   String? foodInstruction;
   String? deliveryOption;
-  Null? optionDesc;
+  String? optionDesc;
   String? deliveryInstructions;
   String? paymentStatus;
   String? transactonId;
@@ -185,7 +192,7 @@ class Orders {
   String? tipTotal;
   String? userMobileNo;
   String? username;
-  Null? deletedAt;
+  String? deletedAt;
   String? createdAt;
   String? updatedAt;
 
@@ -345,11 +352,11 @@ class Chefs {
   String? latitude;
   String? longitude;
   String? mobile;
-  Null? profilePic;
+  String? profilePic;
   int? isMobileVerified;
   String? email;
   int? isEmailVerified;
-  Null? emailVerifiedAt;
+  String? emailVerifiedAt;
   String? isPersonalDetailComplete;
   String? addressProof;
   String? addressProofPath;
@@ -357,25 +364,25 @@ class Chefs {
   String? idProofPath1;
   String? idProof2;
   String? idProofPath2;
-  Null? areYouA;
-  Null? areYouAFilePath;
-  Null? twitterLink;
-  Null? facebookLink;
-  Null? tiktokLink;
+  String? areYouA;
+  String? areYouAFilePath;
+  String? twitterLink;
+  String? facebookLink;
+  String? tiktokLink;
   String? kitchenName;
   String? chefBannerImage;
   String? chefCardImage;
   List<String>? kitchenTypes;
-  Null? otherKitchenTypes;
+  String? otherKitchenTypes;
   String? aboutKitchen;
   String? gstNo;
   String? qstNo;
   String? gstImage;
   String? qstImage;
-  Null? bankName;
-  Null? transitNumber;
-  Null? accountNumber;
-  Null? institutionNumber;
+  String? bankName;
+  String? transitNumber;
+  String? accountNumber;
+  String? institutionNumber;
   String? rating;
   int? newToCanada;
   int? status;
@@ -383,11 +390,11 @@ class Chefs {
   List<String>? chefAvailibilityWeek;
   String? chefAvailibilityFromTime;
   String? chefAvailibilityToTime;
-  Null? blacklistedUser;
-  Null? resetToken;
+  String? blacklistedUser;
+  String? resetToken;
   int? profilePercenatge;
-  Null? story;
-  Null? storyImg;
+  String? story;
+  String? storyImg;
   int? isKitchenDetailCompleted;
   int? isSocialDetailCompleted;
   int? isBankDetailCompleted;
@@ -397,7 +404,7 @@ class Chefs {
   int? isSpecialBenefitDocumentCompleted;
   int? isPersonalDetailsCompleted;
   int? isTaxDocumentCompleted;
-  Null? deletedAt;
+  String? deletedAt;
   String? createdAt;
   String? updatedAt;
 
@@ -636,9 +643,9 @@ class OrderItems {
   String? quantity;
   String? price;
   String? total;
-  Null? deletedAt;
+  String? deletedAt;
   String? createdAt;
-  Null? updatedAt;
+  String? updatedAt;
 
   OrderItems(
       {this.id,
@@ -683,7 +690,7 @@ class OrderTrack {
   String? trackId;
   String? trackDesc;
   String? status;
-  Null? deletedAt;
+  String? deletedAt;
   String? createdAt;
   String? updatedAt;
 

@@ -6,11 +6,26 @@ part 'login_model.freezed.dart';
 part 'login_model.g.dart';
 
 @freezed
+class TokenModel with _$TokenModel {
+  const factory TokenModel({
+    String? access_token,
+    String? message,
+    @Default(false) bool success,
+  }) = _TokenModel;
+
+  factory TokenModel.fromJson(Map<String, Object?> json)
+  => _$TokenModelFromJson(json);
+  factory TokenModel.error(String message) => TokenModel(
+    message: message,
+  );
+}
+
+@freezed
 class LoginModel with _$LoginModel {
   const factory LoginModel({
     ProfileModel? data,
     String? message,
-    String? access_token,
+    TokenModel? token,
     @Default(false) bool success,
   }) = _LoginModel;
 
@@ -21,6 +36,8 @@ class LoginModel with _$LoginModel {
     message: message,
   );
 }
+
+
 
 
 

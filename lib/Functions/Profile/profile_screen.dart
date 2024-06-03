@@ -4,8 +4,10 @@ import 'package:home_plate/Constants/assets.dart';
 import 'package:home_plate/Constants/constants.dart';
 import 'package:home_plate/Navigation/Navigate.dart';
 import 'package:home_plate/Router/routes.dart';
+import 'package:provider/provider.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 
+import '../../Repository/repository.dart';
 import 'Widgets/custom_app_bar.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -184,113 +186,117 @@ class ProfileHeader extends StatelessWidget {
               color: Constants.primaryColor,
             ),
             child: CircleAvatar(
-              radius: 12.w,
+              radius: 10.w,
               backgroundColor: Constants.primaryColor,
               child: Image.asset(Assets.logo),
             ),
           ),
         ),
-        SizedBox(
-          width: 60.w,
-          height: 30.w,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Row(
+        Consumer<Repository>(
+            builder: (context,data,_) {
+            return SizedBox(
+              width: 65.w,
+              height: 30.w,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Icon(
-                    Icons.account_circle_sharp,
-                    color: Constants.secondaryColor,
-                    size: 22.sp,
-                  ),
-                  SizedBox(
-                    width: 2.w,
-                  ),
-                  SizedBox(
-                    width: 40.w,
-                    child: AutoSizeText(
-                      "Himangshu Borah",
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: Colors.black87,
-                            fontSize: 17.sp,
-                            // fontWeight: FontWeight.bold,
-                          ),
-                    ),
-                  ),
-                ],
-              ),
-              Row(
-                children: [
-                  Icon(
-                    Icons.call,
-                    color: Constants.secondaryColor,
-                    size: 22.sp,
-                  ),
-                  SizedBox(
-                    width: 2.w,
-                  ),
-                  SizedBox(
-                    width: 40.w,
-                    child: AutoSizeText(
-                      "+1 863-837-2157",
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: Colors.black87,
-                            fontSize: 17.sp,
-                            // fontWeight: FontWeight.bold,
-                          ),
-                    ),
-                  ),
-                ],
-              ),
-              Row(
-                children: [
-                  Icon(
-                    Icons.email,
-                    color: Constants.secondaryColor,
-                    size: 22.sp,
-                  ),
-                  SizedBox(
-                    width: 2.w,
-                  ),
-                  SizedBox(
-                    width: 40.w,
-                    child: AutoSizeText(
-                      "xyz@gmail.com",
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: Colors.black87,
-                            fontSize: 17.sp,
-                            // fontWeight: FontWeight.bold,
-                          ),
-                    ),
-                  ),
-                ],
-              ),
-              Row(
-                children: [
-                  Icon(
-                    Icons.check_circle,
-                    color: Constants.seventhColor,
-                    // color: Constants.secondaryColor,
-                    size: 22.sp,
-                  ),
-                  SizedBox(
-                    width: 2.w,
-                  ),
-                  SizedBox(
-                    width: 40.w,
-                    child: AutoSizeText(
-                      "Ready",
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: Constants.seventhColor,
-                        fontSize: 17.sp,
-                        fontWeight: FontWeight.bold,
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.account_circle_sharp,
+                        color: Constants.secondaryColor,
+                        size: 22.sp,
                       ),
-                    ),
+                      SizedBox(
+                        width: 2.w,
+                      ),
+                      SizedBox(
+                        width: 50.w,
+                        child: AutoSizeText(
+                          "${data.profile?.firstName} ${data.profile?.lastName}",
+                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                color: Colors.black87,
+                                fontSize: 17.sp,
+                                // fontWeight: FontWeight.bold,
+                              ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.call,
+                        color: Constants.secondaryColor,
+                        size: 22.sp,
+                      ),
+                      SizedBox(
+                        width: 2.w,
+                      ),
+                      SizedBox(
+                        width: 50.w,
+                        child: AutoSizeText(
+                          "+1 ${data.profile?.mobileNo}",
+                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                color: Colors.black87,
+                                fontSize: 17.sp,
+                                // fontWeight: FontWeight.bold,
+                              ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.email,
+                        color: Constants.secondaryColor,
+                        size: 22.sp,
+                      ),
+                      SizedBox(
+                        width: 2.w,
+                      ),
+                      SizedBox(
+                        width: 50.w,
+                        child: AutoSizeText(
+                          data.profile?.email??"xyz@gmail.com",
+                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                color: Colors.black87,
+                                fontSize: 16.sp,
+                                // fontWeight: FontWeight.bold,
+                              ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.check_circle,
+                        color: Constants.seventhColor,
+                        // color: Constants.secondaryColor,
+                        size: 22.sp,
+                      ),
+                      SizedBox(
+                        width: 2.w,
+                      ),
+                      SizedBox(
+                        width: 40.w,
+                        child: AutoSizeText(
+                          "Ready",
+                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: Constants.seventhColor,
+                            fontSize: 17.sp,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
-            ],
-          ),
+            );
+          }
         ),
       ],
     );

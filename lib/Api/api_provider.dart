@@ -5,7 +5,14 @@ import 'package:flutter/material.dart';
 import 'package:home_plate/Model/Generic/generic_response.dart';
 import 'package:home_plate/Model/login_model.dart';
 import 'package:home_plate/Model/registration_model.dart';
+import 'package:home_plate/Navigation/Navigate.dart';
+import 'package:home_plate/Router/routes.dart';
+import 'package:intl/intl.dart';
+import 'package:responsive_sizer/responsive_sizer.dart';
 
+import '../Constants/common_function.dart';
+import '../Constants/constants.dart';
+import '../Model/Details/profile_details.dart';
 import '../Model/Order/order_model.dart';
 import '../Storage/CustomStorage.dart';
 
@@ -18,7 +25,7 @@ class ApiProvider {
 
   // final String baseUrl2 = "http://develop.guwahatiplus.com/api/v1";
   // final String homeUrl = "https://www.guwahatiplus.com/api/v1";
-  final String path = "api";
+  final String path = "api/driver";
 
   Dio? dio;
 
@@ -204,6 +211,40 @@ class ApiProvider {
     } on DioError catch (e) {
       debugPrint("driverVerifyOTP error response: ${e.response}");
       return GenericResponse.error(
+        e.response?.data['message'] ?? "Something went wrong",
+      );
+    }
+  }
+
+  Future<ProfileDetails> getMyDetails() async {
+    BaseOptions option = BaseOptions(
+        connectTimeout: const Duration(seconds: 8),
+        receiveTimeout: const Duration(seconds: 8),
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'Authorization': 'Bearer ${Storage.instance.token}'
+          // 'APP-KEY': ConstanceData.app_key
+        });
+    var url = "$baseUrl/$path/getMyDetails";
+    dio = Dio(option);
+
+    debugPrint(url.toString());
+    // debugPrint(jsonEncode(data));
+    try {
+      Response? response = await dio?.post(url);
+      debugPrint("getMyDetails response: ${response?.data}");
+      if (response?.statusCode == 200 || response?.statusCode == 201) {
+        return ProfileDetails.fromJson(response?.data);
+      } else {
+        debugPrint("getMyDetails error: ${response?.data}");
+        return ProfileDetails.error(
+          response?.data['message'] ?? "Something went wrong",
+        );
+      }
+    } on DioError catch (e) {
+      debugPrint("getMyDetails error response: ${e.response}");
+      return ProfileDetails.error(
         e.response?.data['message'] ?? "Something went wrong",
       );
     }
@@ -447,47 +488,7 @@ class ApiProvider {
     }
   }
 
-  Future<LoginModel> getMyDetails(
-    String driver_id,
-  ) async {
-    BaseOptions option = BaseOptions(
-        connectTimeout: const Duration(seconds: 8),
-        receiveTimeout: const Duration(seconds: 8),
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-          'Authorization': 'Bearer ${Storage.instance.token}'
-          // 'APP-KEY': ConstanceData.app_key
-        });
-    var url = "$baseUrl/$path/getMyDetails";
-    // http://homeplate.ca/driverLogin
-    // hhtps://homeplate.ca/driverLogin
-    dio = Dio(option);
-    var data = {
-      "driver_id": driver_id,
-    };
-    debugPrint(url.toString());
-    debugPrint(jsonEncode(data));
-    try {
-      Response? response = await dio?.post(url, data: jsonEncode(data));
-      debugPrint("getMyDetails response: ${response?.data}");
-      if (response?.statusCode == 200 || response?.statusCode == 201) {
-        return LoginModel.fromJson(response?.data);
-      } else {
-        debugPrint("getMyDetails error: ${response?.data}");
-        return LoginModel.error(
-          response?.data['message'] ??
-              "Something went wrong with the registration",
-        );
-      }
-    } on DioError catch (e) {
-      debugPrint("getMyDetails error response: ${e.response}");
-      return LoginModel.error(
-        e.response?.data['message'] ??
-            "Something went wrong with the registration",
-      );
-    }
-  }
+
 
   Future<GenericResponse> driverUpdateEmail(
     String driver_id,
@@ -653,8 +654,83 @@ class ApiProvider {
     }
   }
 
+  Future<TokenModel> _refreshToken() async {
+    BaseOptions option = BaseOptions(
+        connectTimeout: const Duration(seconds: 8),
+        receiveTimeout: const Duration(seconds: 8),
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'Authorization': 'Bearer ${Storage.instance.token}'
+          // 'APP-KEY': ConstanceData.app_key
+        });
+    var url = "$baseUrl/$path/driverRefreshToken";
+    dio = Dio(option);
+    debugPrint(url.toString());
+    // debugPrint(jsonEncode(data));
+    try {
+      Response? response = await dio?.post(
+        url,
+      );
+      debugPrint("driverRefreshToken response: ${response?.data}");
+      if (response?.statusCode == 200 || response?.statusCode == 201) {
+        await Storage.instance.setToken(response?.data['access_token']);
+        return TokenModel.fromJson(response?.data);
+      } else {
+        debugPrint("driverRefreshToken error: ${response?.data}");
+        return TokenModel.error(
+          response?.data['message'] ?? "Something went wrong",
+        );
+      }
+    } on DioError catch (e) {
+      debugPrint("driverRefreshToken error response: ${e.response}");
+      return TokenModel.error(
+        e.response?.data['message'] ?? "Something went wrong",
+      );
+    }
+  }
+
+  Future<GenericResponse> driverLogout(// String driver_id,
+      ) async {
+    BaseOptions option = BaseOptions(
+        connectTimeout: const Duration(seconds: 8),
+        receiveTimeout: const Duration(seconds: 8),
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'Authorization': 'Bearer ${Storage.instance.token}'
+          // 'APP-KEY': ConstanceData.app_key
+        });
+    var url = "$baseUrl/$path/driverLogout";
+    dio = Dio(option);
+    // var data = {
+    //   "driver_id": driver_id,
+    // };
+    debugPrint(url.toString());
+    // debugPrint(jsonEncode(data));
+    try {
+      Response? response = await dio?.post(
+        url,
+      );
+      debugPrint("driverLogout response: ${response?.data}");
+      if (response?.statusCode == 200 || response?.statusCode == 201) {
+        return GenericResponse.fromJson(response?.data);
+      } else {
+        debugPrint("driverLogout error: ${response?.data}");
+        return GenericResponse.error(
+          response?.data['message'] ?? "Something went wrong",
+        );
+      }
+    } on DioError catch (e) {
+      debugPrint("driverLogout error response: ${e.response}");
+      return GenericResponse.error(
+        e.response?.data['message'] ?? "Something went wrong",
+      );
+    }
+  }
+
   Future<OrderResponse> updateLatLongAndGetListOfOrdersForDriver(
-      String driver_id, latitude, longitude) async {
+      driver_id, latitude, longitude, delivery_date) async {
     BaseOptions option = BaseOptions(
         connectTimeout: const Duration(seconds: 8),
         receiveTimeout: const Duration(seconds: 8),
@@ -670,13 +746,16 @@ class ApiProvider {
       "driver_id": driver_id,
       "latitude": latitude,
       "longitude": longitude,
+      // "delivery_date":DateFormat("MM-dd-yyyy").format(DateTime.now().add(Duration(days: delivery_date)),),
     };
     debugPrint(url.toString());
+    debugPrint("Bearer ${Storage.instance.token}");
     debugPrint(jsonEncode(data));
     try {
       Response? response = await dio?.post(url, data: jsonEncode(data));
       debugPrint(
           "updateLatLongAndGetListOfOrdersForDriver response: ${response?.data}");
+
       if (response?.statusCode == 200 || response?.statusCode == 201) {
         return OrderResponse.fromJson(response?.data);
       } else {
@@ -687,8 +766,20 @@ class ApiProvider {
         );
       }
     } on DioError catch (e) {
+      if (e.response?.statusCode == 401 &&
+          e.response?.data != null &&
+          e.response?.data['message'] == 'Unauthorized') {
+        // Token is likely expired, refresh it
+        final result = await _refreshToken();
+        if (result.success ?? false) {
+          updateLatLongAndGetListOfOrdersForDriver(
+              driver_id, latitude, longitude, delivery_date);
+        } else {
+          CommonFunction().logout();
+        }
+      }
       debugPrint(
-          "updateLatLongAndGetListOfOrdersForDriver error response: ${e.response}");
+          "updateLatLongAndGetListOfOrdersForDriver error response: ${e.response} ${e.requestOptions.headers}");
       return OrderResponse.withError(
         e.response?.data['message'] ?? "Something went wrong",
       );
