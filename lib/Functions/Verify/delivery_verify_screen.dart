@@ -6,7 +6,7 @@ import 'package:faker/faker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_otp_text_field/flutter_otp_text_field.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:pluto_grid/pluto_grid.dart';
+// import 'package:pluto_grid/pluto_grid.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 
 import '../../CommonWidget/help_button.dart';
@@ -471,71 +471,71 @@ class _DeliveryVerifyScreenState extends State<DeliveryVerifyScreen> {
     );
   }
 
-  List<PlutoColumn> columns = [
-    /// Text Column definition
-    PlutoColumn(
-      minWidth: 10.w,
-      width: 35.w,
-      title: 'Food',
-      field: 'food',
-      type: PlutoColumnType.text(),
-    ),
-
-    /// Select Column definition
-    PlutoColumn(
-      minWidth: 10.w,
-      width: 20.w,
-      title: 'Type',
-      field: 'type',
-      type: PlutoColumnType.select(['Full', 'Half']),
-    ),
-
-    PlutoColumn(
-      minWidth: 10.w,
-      width: 20.w,
-      title: 'QTY',
-      field: 'qty',
-      type: PlutoColumnType.number(),
-    ),
-
-    /// Datetime Column definition
-    PlutoColumn(
-      minWidth: 10.w,
-      width: 20.w,
-      title: 'Verify',
-      field: 'is_picked_up',
-      type: PlutoColumnType.select(['Yes', 'No']),
-    ),
-
-    /// Time Column definition
-  ];
-
-  List<PlutoRow> rows = [
-    PlutoRow(
-      cells: {
-        'food': PlutoCell(value: 'Chicken Butter Masala'),
-        'type': PlutoCell(value: 'Full'),
-        'qty': PlutoCell(value: 150),
-        'is_picked_up': PlutoCell(value: 'No'),
-      },
-    ),
-    PlutoRow(
-      cells: {
-        'food': PlutoCell(value: 'Biriyani'),
-        'type': PlutoCell(value: 'Half'),
-        'qty': PlutoCell(value: 200),
-        'is_picked_up': PlutoCell(value: 'No'),
-      },
-    ),
-    PlutoRow(
-      cells: {
-        'food': PlutoCell(value: 'Special Thali'),
-        'type': PlutoCell(value: 'Full'),
-        'qty': PlutoCell(value: 390),
-        'is_picked_up': PlutoCell(value: 'No'),
-      },
-    ),
-  ];
+  // List<PlutoColumn> columns = [
+  //   /// Text Column definition
+  //   PlutoColumn(
+  //     minWidth: 10.w,
+  //     width: 35.w,
+  //     title: 'Food',
+  //     field: 'food',
+  //     type: PlutoColumnType.text(),
+  //   ),
+  //
+  //   /// Select Column definition
+  //   PlutoColumn(
+  //     minWidth: 10.w,
+  //     width: 20.w,
+  //     title: 'Type',
+  //     field: 'type',
+  //     type: PlutoColumnType.select(['Full', 'Half']),
+  //   ),
+  //
+  //   PlutoColumn(
+  //     minWidth: 10.w,
+  //     width: 20.w,
+  //     title: 'QTY',
+  //     field: 'qty',
+  //     type: PlutoColumnType.number(),
+  //   ),
+  //
+  //   /// Datetime Column definition
+  //   PlutoColumn(
+  //     minWidth: 10.w,
+  //     width: 20.w,
+  //     title: 'Verify',
+  //     field: 'is_picked_up',
+  //     type: PlutoColumnType.select(['Yes', 'No']),
+  //   ),
+  //
+  //   /// Time Column definition
+  // ];
+  //
+  // List<PlutoRow> rows = [
+  //   PlutoRow(
+  //     cells: {
+  //       'food': PlutoCell(value: 'Chicken Butter Masala'),
+  //       'type': PlutoCell(value: 'Full'),
+  //       'qty': PlutoCell(value: 150),
+  //       'is_picked_up': PlutoCell(value: 'No'),
+  //     },
+  //   ),
+  //   PlutoRow(
+  //     cells: {
+  //       'food': PlutoCell(value: 'Biriyani'),
+  //       'type': PlutoCell(value: 'Half'),
+  //       'qty': PlutoCell(value: 200),
+  //       'is_picked_up': PlutoCell(value: 'No'),
+  //     },
+  //   ),
+  //   PlutoRow(
+  //     cells: {
+  //       'food': PlutoCell(value: 'Special Thali'),
+  //       'type': PlutoCell(value: 'Full'),
+  //       'qty': PlutoCell(value: 390),
+  //       'is_picked_up': PlutoCell(value: 'No'),
+  //     },
+  //   ),
+  // ];
 
   Future<void> pickPhoto() async {
     final ImagePicker picker = ImagePicker();

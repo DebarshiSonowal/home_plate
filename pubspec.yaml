@@ -59,7 +59,7 @@ dependencies:
   sized_icon_button: ^0.0.2
   map_launcher: ^3.3.0
   flutter_svg: ^2.0.10+1
-  pluto_grid: ^7.0.0
+#  pluto_grid: ^7.0.0
   flutter_native_splash: ^2.3.7
   image_picker: ^1.0.8
   bottom_picker: ^2.7.0
