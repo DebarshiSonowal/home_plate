@@ -1,15 +1,21 @@
 import 'dart:io';
 
 import 'package:auto_size_text/auto_size_text.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
 import 'package:home_plate/Api/api_provider.dart';
 import 'package:home_plate/Storage/CustomStorage.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:popup_menu_plus/popup_menu_plus.dart';
+import 'package:provider/provider.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
+import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
 
+import '../../Constants/common_function.dart';
 import '../../Constants/constants.dart';
 import '../../Navigation/Navigate.dart';
+import '../../Repository/repository.dart';
 
 class UpdateDocumentScreen extends StatefulWidget {
   const UpdateDocumentScreen({super.key});
@@ -20,10 +26,49 @@ class UpdateDocumentScreen extends StatefulWidget {
 
 class _UpdateDocumentScreenState extends State<UpdateDocumentScreen> {
   File? dl_photo;
+  String? dl_url = "";
   final dlNumber = TextEditingController();
+  PopupMenu? menu;
+
+  @override
+  void initState() {
+    super.initState();
+    Future.delayed(Duration(seconds: 0), () {
+      loadDrivingDetails();
+      menu = PopupMenu(
+        context: context,
+        config: const MenuConfig(
+          backgroundColor: Colors.green,
+          lineColor: Colors.greenAccent,
+          highlightColor: Colors.lightGreenAccent,
+        ),
+        items: [
+          PopUpMenuItem(
+            title: 'View Existing',
+            image: const Icon(Icons.picture_as_pdf),
+          ),
+          PopUpMenuItem(
+            title: 'PickUp New',
+            image: const Icon(
+              Icons.photo_outlined,
+              color: Colors.white,
+            ),
+          ),
+        ],
+        onClickMenu: (PopUpMenuItemProvider val) {
+          if (val.menuTitle == "View Existing") {
+          } else {}
+        },
+        onShow: () {},
+        onDismiss: () {},
+      );
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
+    final data = Provider.of<Repository>(context, listen: false).profile;
+    final int status = data?.status ?? 0;
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Constants.primaryColor,
@@ -158,75 +203,89 @@ class _UpdateDocumentScreenState extends State<UpdateDocumentScreen> {
               padding: EdgeInsets.symmetric(
                 horizontal: 2.w,
               ),
-              child: GestureDetector(
-                onTap: () {
-                  pickImage((path) {
-                    setState(() {
-                      dl_photo = File(path);
-                    });
-                  });
-                },
-                child: DottedBorder(
-                  color: Colors.black,
-                  strokeWidth: 1,
-                  child: Container(
-                    color: Constants.primaryColor,
-                    height: 20.h,
-                    width: double.infinity,
-                    child: Center(
-                      child: dl_photo == null
-                          ? Icon(
-                              Icons.folder,
-                              size: 35.sp,
-                            )
-                          : Image.file(File(dl_photo!.path)),
-                    ),
+              child: DottedBorder(
+                color: Colors.black,
+                strokeWidth: 1,
+                child: Container(
+                  color: Constants.primaryColor,
+                  height: 30.h,
+                  width: double.infinity,
+                  child: Center(
+                    child: dl_photo == null
+                        ? (dl_url?.isEmpty ?? false)
+                            ? GestureDetector(
+                                onTap: () {
+                                  pickImage((path) {
+                                    setState(() {
+                                      dl_photo = File(path);
+                                    });
+                                  });
+                                },
+                                child: Icon(
+                                  Icons.folder,
+                                  size: 35.sp,
+                                ),
+                              )
+                            : SfPdfViewer.network(dl_url!)
+                        : GestureDetector(
+                            onTap: () {
+                              pickImage((path) {
+                                setState(() {
+                                  dl_photo = File(path);
+                                });
+                              });
+                            },
+                            child: Image.file(File(dl_photo!.path))),
                   ),
                 ),
               ),
             ),
             const Spacer(),
-            Container(
-              margin: EdgeInsets.symmetric(
-                horizontal: 1.w,
-              ),
-              height: 7.h,
-              width: double.infinity,
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Constants.secondaryColor,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12), // <-- Radius
-                  ),
-                ),
-                onPressed: () {
-                  if (dlNumber.text.isNotEmpty&&dl_photo!=null) {
-                    updateDrivingLicense();
-                  } else {
-                    var snackBar = SnackBar(
+            status == 2
+                ? Container()
+                : Container(
+                    margin: EdgeInsets.symmetric(
+                      horizontal: 1.w,
+                    ),
+                    height: 7.h,
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
                         backgroundColor: Constants.secondaryColor,
-                        content: Text(
-                          'Enter all the details',
-                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            fontSize: 17.sp,
-                            color: Constants.primaryColor,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ));
-                    ScaffoldMessenger.of(context).showSnackBar(snackBar);
-                  }
-
-                },
-                child: Text(
-                  "Update Document",
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        fontSize: 17.sp,
-                        color: Constants.primaryColor,
-                        fontWeight: FontWeight.bold,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12), // <-- Radius
+                        ),
                       ),
-                ),
-              ),
-            ),
+                      onPressed: () {
+                        if (dlNumber.text.isNotEmpty) {
+                          updateDrivingLicense();
+                        } else {
+                          var snackBar = SnackBar(
+                              backgroundColor: Constants.secondaryColor,
+                              content: Text(
+                                'Enter all the details',
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .bodySmall
+                                    ?.copyWith(
+                                      fontSize: 17.sp,
+                                      color: Constants.primaryColor,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                              ));
+                          ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                        }
+                      },
+                      child: Text(
+                        "Update Document",
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                              fontSize: 17.sp,
+                              color: Constants.primaryColor,
+                              fontWeight: FontWeight.bold,
+                            ),
+                      ),
+                    ),
+                  ),
             SizedBox(
               height: 1.h,
             ),
@@ -243,34 +302,45 @@ class _UpdateDocumentScreenState extends State<UpdateDocumentScreen> {
   }
 
   void updateDrivingLicense() async {
-    final response = await ApiProvider.instance.updateDrivingLicence(
-        Storage.instance.token, dlNumber.text, dl_photo!.path);
-    if(response.success??false){
+    await CommonFunction().showLoadingDialog(context);
+    final response = await ApiProvider.instance
+        .updateDrivingLicence(dlNumber.text, dl_photo?.path ?? "");
+    if (response.success ?? false) {
+      await CommonFunction().hideLoadingDialog(context);
       var snackBar = SnackBar(
           backgroundColor: Constants.seventhColor,
           content: Text(
-            response.message??'Document Updated Successfully',
+            response.message ?? 'Document Updated Successfully',
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
-              fontSize: 17.sp,
-              color: Constants.primaryColor,
-              fontWeight: FontWeight.bold,
-            ),
+                  fontSize: 17.sp,
+                  color: Constants.primaryColor,
+                  fontWeight: FontWeight.bold,
+                ),
           ));
       ScaffoldMessenger.of(context).showSnackBar(snackBar);
       Navigation.instance.goBack();
-    }else{
+    } else {
+      CommonFunction().hideLoadingDialog(context);
       var snackBar = SnackBar(
           backgroundColor: Constants.secondaryColor,
           content: Text(
-            response.message??'Something went wrong',
+            response.message ?? 'Something went wrong',
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
-              fontSize: 17.sp,
-              color: Constants.primaryColor,
-              fontWeight: FontWeight.bold,
-            ),
+                  fontSize: 17.sp,
+                  color: Constants.primaryColor,
+                  fontWeight: FontWeight.bold,
+                ),
           ));
       ScaffoldMessenger.of(context).showSnackBar(snackBar);
       // Navigation.instance.goBack();
     }
+  }
+
+  void loadDrivingDetails() {
+    final data = Provider.of<Repository>(context, listen: false).profile;
+    dlNumber.text = data?.driving_licence_no ?? "";
+    dl_url = data?.driving_licence_proof ?? "";
+    debugPrint("db ${data?.driving_licence_proof ?? ""}");
+    setState(() {});
   }
 }

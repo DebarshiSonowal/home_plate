@@ -5,15 +5,18 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:home_plate/Api/api_provider.dart';
+import 'package:home_plate/Constants/common_function.dart';
 import 'package:home_plate/Constants/constants.dart';
 import 'package:home_plate/Navigation/Navigate.dart';
 import 'package:home_plate/Router/routes.dart';
 import 'package:home_plate/Storage/CustomStorage.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
+import 'package:provider/provider.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 
 import '../../Constants/assets.dart';
 import '../../Constants/custom_shapes.dart';
+import '../../Repository/repository.dart';
 import 'ForgotPasswordDialog/forgot_password_dialog.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -33,6 +36,14 @@ class _LoginScreenState extends State<LoginScreen> {
   TextEditingController email = TextEditingController();
   TextEditingController password = TextEditingController();
   bool isMobile = true;
+
+  @override
+  void dispose() {
+    mobile.dispose();
+    email.dispose();
+    password.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -396,6 +407,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                       if (isMobile) {
                                         if (validateMobile(mobile.text)) {
                                           if (password.text.isNotEmpty) {
+                                            FocusManager.instance.primaryFocus?.unfocus();
                                             login();
                                           } else {
                                             var snackBar = SnackBar(
@@ -442,7 +454,6 @@ class _LoginScreenState extends State<LoginScreen> {
                                         if (validateEmail(email.text)) {
                                           if (password.text.isNotEmpty) {
                                             login();
-
                                           } else {
                                             var snackBar = SnackBar(
                                               backgroundColor:
@@ -665,13 +676,17 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   void login() async {
+    CommonFunction().showLoadingDialog(context);
     final response = await ApiProvider.instance
         .login(email.text, convertPhoneNumber(mobile.text), password.text);
     if (response.success) {
       debugPrint("login successful ${response.token?.access_token}");
-      Storage.instance.setUser(response.token?.access_token??"","${response.data?.id}");
-      Navigation.instance.navigateAndRemoveUntil(Routes.getOrderScreen);
+      Storage.instance
+          .setUser(response.token?.access_token ?? "", "${response.data?.id}");
+
+      fetchProfile();
     } else {
+      CommonFunction().hideLoadingDialog(context);
       var snackBar = SnackBar(
           backgroundColor: Constants.secondaryColor,
           content: Text(
@@ -685,8 +700,47 @@ class _LoginScreenState extends State<LoginScreen> {
       ScaffoldMessenger.of(context).showSnackBar(snackBar);
     }
   }
+
   String convertPhoneNumber(String phoneNumber) {
     return phoneNumber.replaceFirst(RegExp(r'^\+1\s*'), '');
   }
-}
 
+  fetchProfile() async {
+    final response = await ApiProvider.instance.getMyDetails();
+    if (response.success ?? false) {
+      CommonFunction().hideLoadingDialog(context);
+      Provider.of<Repository>(context, listen: false)
+          .setProfileModel(response.data!);
+      final data = response.data;
+      // if (((data?.is_address_proof_document_completed ?? 0) == 1) &&
+      //     ((data?.is_bank_document_detail ?? 0) == 1) &&
+      //     ((data?.is_driving_license_document_completed ?? 0) == 1) &&
+      //     ((data?.is_personal_details_completed ?? 0) == 1) &&
+      //     ((data?.is_tax_document_completed ?? 0) == 1) &&
+      //     ((data?.is_email_verified ?? 0) == 1)) {
+      if ((data?.status ?? 0) == 1) {
+        Navigation.instance.navigateAndRemoveUntil(Routes.getOrderScreen);
+      } else if((data?.status ?? 0) != 3) {
+        Navigation.instance.navigate(
+          Routes.profileVerificationScreen,
+        );
+        // Navigation.instance.navigateAndRemoveUntil(Routes.getOrderScreen);
+      }else{
+        CommonFunction().logout();
+      }
+    } else {
+      CommonFunction().hideLoadingDialog(context);
+      var snackBar = SnackBar(
+          backgroundColor: Constants.secondaryColor,
+          content: Text(
+            response.message ?? 'Something went wrong',
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  fontSize: 17.sp,
+                  color: Constants.primaryColor,
+                  fontWeight: FontWeight.bold,
+                ),
+          ));
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    }
+  }
+}

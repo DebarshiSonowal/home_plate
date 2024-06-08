@@ -151,7 +151,7 @@ class ApiProvider {
           // 'Authorization': 'Bearer ${Storage.instance.token}'
           // 'APP-KEY': ConstanceData.app_key
         });
-    var url = "$baseUrl/$path/driverSendOTP";
+    var url = "$baseUrl/api/driverSendOTP";
     // http://homeplate.ca/driverLogin
     // hhtps://homeplate.ca/driverLogin
     dio = Dio(option);
@@ -189,7 +189,7 @@ class ApiProvider {
           // 'Authorization': 'Bearer ${Storage.instance.token}'
           // 'APP-KEY': ConstanceData.app_key
         });
-    var url = "$baseUrl/$path/verifyOtp";
+    var url = "$baseUrl/api/verifyOtp";
     dio = Dio(option);
     var data = {
       "mobile": mobile,
@@ -230,7 +230,7 @@ class ApiProvider {
     dio = Dio(option);
 
     debugPrint(url.toString());
-    // debugPrint(jsonEncode(data));
+    debugPrint("Bearer ${Storage.instance.token}");
     try {
       Response? response = await dio?.post(url);
       debugPrint("getMyDetails response: ${response?.data}");
@@ -243,6 +243,17 @@ class ApiProvider {
         );
       }
     } on DioError catch (e) {
+      if (e.response?.statusCode == 401 &&
+          e.response?.data != null &&
+          e.response?.data['message'] == 'Unauthorized') {
+        // Token is likely expired, refresh it
+        final result = await _refreshToken();
+        if (result.success ?? false) {
+          getMyDetails();
+        } else {
+          CommonFunction().logout();
+        }
+      }
       debugPrint("getMyDetails error response: ${e.response}");
       return ProfileDetails.error(
         e.response?.data['message'] ?? "Something went wrong",
@@ -290,7 +301,7 @@ class ApiProvider {
   }
 
   Future<GenericResponse> updatePersonalDetails(
-    String driver_id,
+    // String driver_id,
     String firstName,
     String lastName,
     String full_address,
@@ -313,8 +324,8 @@ class ApiProvider {
         });
     var url = "$baseUrl/$path/updatePersonalDetails";
     dio = Dio(option);
-    FormData data = FormData.fromMap({
-      "driver_id": driver_id,
+    Map<String, dynamic> jsonData = {
+      // "driver_id": driver_id,
       "firstName": firstName,
       "lastName": lastName,
       "full_address": full_address,
@@ -323,19 +334,28 @@ class ApiProvider {
       "postal_code": postal_code,
       "lat": lat,
       "long": long,
-      "address_proof": await MultipartFile.fromFile(
-        address_proof,
-        filename: address_proof.split("/").last.split(".").first,
-      ),
-      "profile_pic": await MultipartFile.fromFile(
-        profile_pic,
-        filename: profile_pic.split("/").last.split(".").first,
-      ),
-    });
+    };
+    if (address_proof.isNotEmpty) {
+      jsonData.addAll({
+        "address_proof": await MultipartFile.fromFile(
+          address_proof,
+          filename: address_proof.split("/").last.split(".").first,
+        ),
+      });
+    }
+    if (profile_pic.isNotEmpty) {
+      jsonData.addAll({
+        "profile_pic": await MultipartFile.fromFile(
+          profile_pic,
+          filename: profile_pic.split("/").last.split(".").first,
+        ),
+      });
+    }
+    FormData data = FormData.fromMap(jsonData);
     debugPrint(url.toString());
-    debugPrint(jsonEncode(data));
+    debugPrint(data.fields.toString());
     try {
-      Response? response = await dio?.post(url, data: jsonEncode(data));
+      Response? response = await dio?.post(url, data: data);
       debugPrint("updatePersonalDetails response: ${response?.data}");
       if (response?.statusCode == 200 || response?.statusCode == 201) {
         return GenericResponse.fromJson(response?.data);
@@ -354,7 +374,6 @@ class ApiProvider {
   }
 
   Future<GenericResponse> updateDrivingLicence(
-    String id,
     String driving_licence_number,
     String driving_licence_proof,
   ) async {
@@ -364,23 +383,27 @@ class ApiProvider {
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json',
-          // 'Authorization': 'Bearer ${Storage.instance.token}'
+          'Authorization': 'Bearer ${Storage.instance.token}'
           // 'APP-KEY': ConstanceData.app_key
         });
     var url = "$baseUrl/$path/updateDrivingLicence";
     dio = Dio(option);
-    FormData data = FormData.fromMap({
-      "id": id,
-      "driving_licence_number": driving_licence_number,
-      "driving_licence_proof": await MultipartFile.fromFile(
-        driving_licence_proof,
-        filename: driving_licence_number,
-      ),
-    });
+    Map<String, dynamic> jsonData = {
+      "driving_licence_no": driving_licence_number,
+    };
+    if (driving_licence_proof.isNotEmpty) {
+      jsonData.addAll({
+        "driving_licence_proof": await MultipartFile.fromFile(
+          driving_licence_proof,
+          filename: driving_licence_number,
+        ),
+      });
+    }
+    FormData data = FormData.fromMap(jsonData);
     debugPrint(url.toString());
-    debugPrint(jsonEncode(data));
+    debugPrint(data.fields.toString());
     try {
-      Response? response = await dio?.post(url, data: jsonEncode(data));
+      Response? response = await dio?.post(url, data: data);
       debugPrint("updateDrivingLicence response: ${response?.data}");
       if (response?.statusCode == 200 || response?.statusCode == 201) {
         return GenericResponse.fromJson(response?.data);
@@ -399,7 +422,6 @@ class ApiProvider {
   }
 
   Future<GenericResponse> updateTaxationNo(
-    String id,
     String gst_image,
     String qst_image,
     String gst_no,
@@ -411,28 +433,36 @@ class ApiProvider {
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json',
-          // 'Authorization': 'Bearer ${Storage.instance.token}'
+          'Authorization': 'Bearer ${Storage.instance.token}'
           // 'APP-KEY': ConstanceData.app_key
         });
     var url = "$baseUrl/$path/updateTaxationNo";
     dio = Dio(option);
-    FormData data = FormData.fromMap({
-      "id": id,
+    Map<String, dynamic> jsonData = {
       "gst_no": gst_no,
-      "gst_image": await MultipartFile.fromFile(
-        gst_image,
-        filename: gst_no,
-      ),
       "qst_no": qst_no,
-      "qst_image": await MultipartFile.fromFile(
-        qst_image,
-        filename: qst_no,
-      ),
-    });
+    };
+    if (gst_image.isNotEmpty) {
+      jsonData.addAll({
+        "gst_image": await MultipartFile.fromFile(
+          gst_image,
+          filename: gst_no,
+        ),
+      });
+    }
+    if (qst_image.isNotEmpty) {
+      jsonData.addAll({
+        "qst_image": await MultipartFile.fromFile(
+          qst_image,
+          filename: qst_no,
+        ),
+      });
+    }
+    FormData data = FormData.fromMap(jsonData);
     debugPrint(url.toString());
-    debugPrint(jsonEncode(data));
+    // debugPrint(jsonEncode(data));
     try {
-      Response? response = await dio?.post(url, data: jsonEncode(data));
+      Response? response = await dio?.post(url, data: data);
       debugPrint("updateTaxationNo response: ${response?.data}");
       if (response?.statusCode == 200 || response?.statusCode == 201) {
         return GenericResponse.fromJson(response?.data);
@@ -488,10 +518,7 @@ class ApiProvider {
     }
   }
 
-
-
   Future<GenericResponse> driverUpdateEmail(
-    String driver_id,
     String email,
   ) async {
     BaseOptions option = BaseOptions(
@@ -500,13 +527,12 @@ class ApiProvider {
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json',
-          // 'Authorization': 'Bearer ${Storage.instance.token}'
+          'Authorization': 'Bearer ${Storage.instance.token}'
           // 'APP-KEY': ConstanceData.app_key
         });
     var url = "$baseUrl/$path/driverUpdateEmail";
     dio = Dio(option);
     var data = {
-      "driver_id": driver_id,
       "email": email,
     };
     debugPrint(url.toString());
@@ -530,9 +556,10 @@ class ApiProvider {
     }
   }
 
+
   Future<GenericResponse> VerifyDriverEmail(
-    String driver_id,
-    String email,
+    // String driver_id,
+    // String email,
   ) async {
     BaseOptions option = BaseOptions(
         connectTimeout: const Duration(seconds: 8),
@@ -540,14 +567,14 @@ class ApiProvider {
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json',
-          // 'Authorization': 'Bearer ${Storage.instance.token}'
+          'Authorization': 'Bearer ${Storage.instance.token}'
           // 'APP-KEY': ConstanceData.app_key
         });
     var url = "$baseUrl/$path/VerifyDriverEmail";
     dio = Dio(option);
     var data = {
-      "driver_id": driver_id,
-      "email": email,
+      // "driver_id": driver_id,
+      // "email": email,
     };
     debugPrint(url.toString());
     debugPrint(jsonEncode(data));
@@ -571,7 +598,6 @@ class ApiProvider {
   }
 
   Future<GenericResponse> updateDriverBankDetails(
-    String id,
     String bank_name,
     String transit_number,
     String account_number,
@@ -583,13 +609,13 @@ class ApiProvider {
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json',
-          // 'Authorization': 'Bearer ${Storage.instance.token}'
+          'Authorization': 'Bearer ${Storage.instance.token}'
           // 'APP-KEY': ConstanceData.app_key
         });
     var url = "$baseUrl/$path/updateDriverBankDetails";
     dio = Dio(option);
     var data = {
-      "id": id,
+      // "id": id,
       "bank_name": bank_name,
       "transit_number": transit_number,
       "account_number": account_number,
@@ -617,7 +643,6 @@ class ApiProvider {
   }
 
   Future<GenericResponse> sendDriverProfileForReview(
-    String driver_id,
   ) async {
     BaseOptions option = BaseOptions(
         connectTimeout: const Duration(seconds: 8),
@@ -631,7 +656,7 @@ class ApiProvider {
     var url = "$baseUrl/$path/sendDriverProfileForReview";
     dio = Dio(option);
     var data = {
-      "driver_id": driver_id,
+      "driver_id": 14,
     };
     debugPrint(url.toString());
     debugPrint(jsonEncode(data));
@@ -683,6 +708,13 @@ class ApiProvider {
         );
       }
     } on DioError catch (e) {
+      if (e.response?.statusCode == 401 &&
+          e.response?.data != null &&
+          e.response?.data['message'] == 'Unauthorized') {
+        // Token is likely expired, refresh it
+
+        CommonFunction().logout();
+      }
       debugPrint("driverRefreshToken error response: ${e.response}");
       return TokenModel.error(
         e.response?.data['message'] ?? "Something went wrong",

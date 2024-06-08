@@ -32,7 +32,7 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
     Future.delayed(Duration.zero,(){
-      fetchProfile();
+      // fetchProfile();
     });
   }
 
@@ -182,12 +182,5 @@ class _HomeScreenState extends State<HomeScreen> {
       return [];
     }
   }
-  fetchProfile() async{
-    final response = await ApiProvider.instance.getMyDetails();
-    if (response.success??false){
-        Provider.of<Repository>(context,listen: false).setProfileModel(response.data!);
-    }else{
 
-    }
-  }
 }

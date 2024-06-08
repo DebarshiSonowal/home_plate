@@ -40,6 +40,12 @@ mixin _$ProfileModel {
   String? get criminal_report => throw _privateConstructorUsedError;
   String? get account_number => throw _privateConstructorUsedError;
   String? get institution_number => throw _privateConstructorUsedError;
+  String? get postal_code => throw _privateConstructorUsedError;
+  String? get profile_pic => throw _privateConstructorUsedError;
+  String? get city => throw _privateConstructorUsedError;
+  String? get bank_name => throw _privateConstructorUsedError;
+  String? get transit_number => throw _privateConstructorUsedError;
+  String? get resetToken => throw _privateConstructorUsedError;
   int? get id => throw _privateConstructorUsedError;
   int? get is_email_verified => throw _privateConstructorUsedError;
   int? get status => throw _privateConstructorUsedError;
@@ -85,6 +91,12 @@ abstract class $ProfileModelCopyWith<$Res> {
       String? criminal_report,
       String? account_number,
       String? institution_number,
+      String? postal_code,
+      String? profile_pic,
+      String? city,
+      String? bank_name,
+      String? transit_number,
+      String? resetToken,
       int? id,
       int? is_email_verified,
       int? status,
@@ -129,6 +141,12 @@ class _$ProfileModelCopyWithImpl<$Res, $Val extends ProfileModel>
     Object? criminal_report = freezed,
     Object? account_number = freezed,
     Object? institution_number = freezed,
+    Object? postal_code = freezed,
+    Object? profile_pic = freezed,
+    Object? city = freezed,
+    Object? bank_name = freezed,
+    Object? transit_number = freezed,
+    Object? resetToken = freezed,
     Object? id = freezed,
     Object? is_email_verified = freezed,
     Object? status = freezed,
@@ -220,6 +238,30 @@ class _$ProfileModelCopyWithImpl<$Res, $Val extends ProfileModel>
           ? _value.institution_number
           : institution_number // ignore: cast_nullable_to_non_nullable
               as String?,
+      postal_code: freezed == postal_code
+          ? _value.postal_code
+          : postal_code // ignore: cast_nullable_to_non_nullable
+              as String?,
+      profile_pic: freezed == profile_pic
+          ? _value.profile_pic
+          : profile_pic // ignore: cast_nullable_to_non_nullable
+              as String?,
+      city: freezed == city
+          ? _value.city
+          : city // ignore: cast_nullable_to_non_nullable
+              as String?,
+      bank_name: freezed == bank_name
+          ? _value.bank_name
+          : bank_name // ignore: cast_nullable_to_non_nullable
+              as String?,
+      transit_number: freezed == transit_number
+          ? _value.transit_number
+          : transit_number // ignore: cast_nullable_to_non_nullable
+              as String?,
+      resetToken: freezed == resetToken
+          ? _value.resetToken
+          : resetToken // ignore: cast_nullable_to_non_nullable
+              as String?,
       id: freezed == id
           ? _value.id
           : id // ignore: cast_nullable_to_non_nullable
@@ -291,6 +333,12 @@ abstract class _$$ProfileModelImplCopyWith<$Res>
       String? criminal_report,
       String? account_number,
       String? institution_number,
+      String? postal_code,
+      String? profile_pic,
+      String? city,
+      String? bank_name,
+      String? transit_number,
+      String? resetToken,
       int? id,
       int? is_email_verified,
       int? status,
@@ -333,6 +381,12 @@ class __$$ProfileModelImplCopyWithImpl<$Res>
     Object? criminal_report = freezed,
     Object? account_number = freezed,
     Object? institution_number = freezed,
+    Object? postal_code = freezed,
+    Object? profile_pic = freezed,
+    Object? city = freezed,
+    Object? bank_name = freezed,
+    Object? transit_number = freezed,
+    Object? resetToken = freezed,
     Object? id = freezed,
     Object? is_email_verified = freezed,
     Object? status = freezed,
@@ -424,6 +478,30 @@ class __$$ProfileModelImplCopyWithImpl<$Res>
           ? _value.institution_number
           : institution_number // ignore: cast_nullable_to_non_nullable
               as String?,
+      postal_code: freezed == postal_code
+          ? _value.postal_code
+          : postal_code // ignore: cast_nullable_to_non_nullable
+              as String?,
+      profile_pic: freezed == profile_pic
+          ? _value.profile_pic
+          : profile_pic // ignore: cast_nullable_to_non_nullable
+              as String?,
+      city: freezed == city
+          ? _value.city
+          : city // ignore: cast_nullable_to_non_nullable
+              as String?,
+      bank_name: freezed == bank_name
+          ? _value.bank_name
+          : bank_name // ignore: cast_nullable_to_non_nullable
+              as String?,
+      transit_number: freezed == transit_number
+          ? _value.transit_number
+          : transit_number // ignore: cast_nullable_to_non_nullable
+              as String?,
+      resetToken: freezed == resetToken
+          ? _value.resetToken
+          : resetToken // ignore: cast_nullable_to_non_nullable
+              as String?,
       id: freezed == id
           ? _value.id
           : id // ignore: cast_nullable_to_non_nullable
@@ -490,6 +568,12 @@ class _$ProfileModelImpl with DiagnosticableTreeMixin implements _ProfileModel {
       this.criminal_report = "",
       this.account_number = "",
       this.institution_number = "",
+      this.postal_code = "",
+      this.profile_pic = "",
+      this.city = "",
+      this.bank_name = "",
+      this.transit_number = "",
+      this.resetToken = "",
       this.id = 0,
       this.is_email_verified = 0,
       this.status = 0,
@@ -565,6 +649,24 @@ class _$ProfileModelImpl with DiagnosticableTreeMixin implements _ProfileModel {
   final String? institution_number;
   @override
   @JsonKey()
+  final String? postal_code;
+  @override
+  @JsonKey()
+  final String? profile_pic;
+  @override
+  @JsonKey()
+  final String? city;
+  @override
+  @JsonKey()
+  final String? bank_name;
+  @override
+  @JsonKey()
+  final String? transit_number;
+  @override
+  @JsonKey()
+  final String? resetToken;
+  @override
+  @JsonKey()
   final int? id;
   @override
   @JsonKey()
@@ -593,7 +695,7 @@ class _$ProfileModelImpl with DiagnosticableTreeMixin implements _ProfileModel {
 
   @override
   String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
-    return 'ProfileModel(firstName: $firstName, lastName: $lastName, email: $email, mobileNo: $mobileNo, are_you_a: $are_you_a, full_address: $full_address, latitude: $latitude, longitude: $longitude, province: $province, address_proof: $address_proof, gst_no: $gst_no, qst_no: $qst_no, gst_image: $gst_image, qst_image: $qst_image, driving_licence_no: $driving_licence_no, driving_licence_proof: $driving_licence_proof, taxation_proof: $taxation_proof, criminal_report: $criminal_report, account_number: $account_number, institution_number: $institution_number, id: $id, is_email_verified: $is_email_verified, status: $status, availability: $availability, is_personal_details_completed: $is_personal_details_completed, is_driving_license_document_completed: $is_driving_license_document_completed, is_address_proof_document_completed: $is_address_proof_document_completed, is_tax_document_completed: $is_tax_document_completed, is_bank_document_detail: $is_bank_document_detail)';
+    return 'ProfileModel(firstName: $firstName, lastName: $lastName, email: $email, mobileNo: $mobileNo, are_you_a: $are_you_a, full_address: $full_address, latitude: $latitude, longitude: $longitude, province: $province, address_proof: $address_proof, gst_no: $gst_no, qst_no: $qst_no, gst_image: $gst_image, qst_image: $qst_image, driving_licence_no: $driving_licence_no, driving_licence_proof: $driving_licence_proof, taxation_proof: $taxation_proof, criminal_report: $criminal_report, account_number: $account_number, institution_number: $institution_number, postal_code: $postal_code, profile_pic: $profile_pic, city: $city, bank_name: $bank_name, transit_number: $transit_number, resetToken: $resetToken, id: $id, is_email_verified: $is_email_verified, status: $status, availability: $availability, is_personal_details_completed: $is_personal_details_completed, is_driving_license_document_completed: $is_driving_license_document_completed, is_address_proof_document_completed: $is_address_proof_document_completed, is_tax_document_completed: $is_tax_document_completed, is_bank_document_detail: $is_bank_document_detail)';
   }
 
   @override
@@ -621,6 +723,12 @@ class _$ProfileModelImpl with DiagnosticableTreeMixin implements _ProfileModel {
       ..add(DiagnosticsProperty('criminal_report', criminal_report))
       ..add(DiagnosticsProperty('account_number', account_number))
       ..add(DiagnosticsProperty('institution_number', institution_number))
+      ..add(DiagnosticsProperty('postal_code', postal_code))
+      ..add(DiagnosticsProperty('profile_pic', profile_pic))
+      ..add(DiagnosticsProperty('city', city))
+      ..add(DiagnosticsProperty('bank_name', bank_name))
+      ..add(DiagnosticsProperty('transit_number', transit_number))
+      ..add(DiagnosticsProperty('resetToken', resetToken))
       ..add(DiagnosticsProperty('id', id))
       ..add(DiagnosticsProperty('is_email_verified', is_email_verified))
       ..add(DiagnosticsProperty('status', status))
@@ -679,6 +787,17 @@ class _$ProfileModelImpl with DiagnosticableTreeMixin implements _ProfileModel {
                 other.account_number == account_number) &&
             (identical(other.institution_number, institution_number) ||
                 other.institution_number == institution_number) &&
+            (identical(other.postal_code, postal_code) ||
+                other.postal_code == postal_code) &&
+            (identical(other.profile_pic, profile_pic) ||
+                other.profile_pic == profile_pic) &&
+            (identical(other.city, city) || other.city == city) &&
+            (identical(other.bank_name, bank_name) ||
+                other.bank_name == bank_name) &&
+            (identical(other.transit_number, transit_number) ||
+                other.transit_number == transit_number) &&
+            (identical(other.resetToken, resetToken) ||
+                other.resetToken == resetToken) &&
             (identical(other.id, id) || other.id == id) &&
             (identical(other.is_email_verified, is_email_verified) ||
                 other.is_email_verified == is_email_verified) &&
@@ -697,8 +816,7 @@ class _$ProfileModelImpl with DiagnosticableTreeMixin implements _ProfileModel {
                     is_address_proof_document_completed) ||
                 other.is_address_proof_document_completed ==
                     is_address_proof_document_completed) &&
-            (identical(other.is_tax_document_completed,
-                    is_tax_document_completed) ||
+            (identical(other.is_tax_document_completed, is_tax_document_completed) ||
                 other.is_tax_document_completed == is_tax_document_completed) &&
             (identical(
                     other.is_bank_document_detail, is_bank_document_detail) ||
@@ -729,6 +847,12 @@ class _$ProfileModelImpl with DiagnosticableTreeMixin implements _ProfileModel {
         criminal_report,
         account_number,
         institution_number,
+        postal_code,
+        profile_pic,
+        city,
+        bank_name,
+        transit_number,
+        resetToken,
         id,
         is_email_verified,
         status,
@@ -776,6 +900,12 @@ abstract class _ProfileModel implements ProfileModel {
       final String? criminal_report,
       final String? account_number,
       final String? institution_number,
+      final String? postal_code,
+      final String? profile_pic,
+      final String? city,
+      final String? bank_name,
+      final String? transit_number,
+      final String? resetToken,
       final int? id,
       final int? is_email_verified,
       final int? status,
@@ -829,6 +959,18 @@ abstract class _ProfileModel implements ProfileModel {
   String? get account_number;
   @override
   String? get institution_number;
+  @override
+  String? get postal_code;
+  @override
+  String? get profile_pic;
+  @override
+  String? get city;
+  @override
+  String? get bank_name;
+  @override
+  String? get transit_number;
+  @override
+  String? get resetToken;
   @override
   int? get id;
   @override

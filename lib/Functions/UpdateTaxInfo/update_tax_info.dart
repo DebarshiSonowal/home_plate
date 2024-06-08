@@ -1,15 +1,19 @@
 import 'dart:io';
 
 import 'package:auto_size_text/auto_size_text.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
 import 'package:home_plate/Api/api_provider.dart';
 import 'package:home_plate/Navigation/Navigate.dart';
 import 'package:home_plate/Storage/CustomStorage.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:provider/provider.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 
+import '../../Constants/common_function.dart';
 import '../../Constants/constants.dart';
+import '../../Repository/repository.dart';
 
 class UpdateTaxInfoDetails extends StatefulWidget {
   const UpdateTaxInfoDetails({super.key});
@@ -22,9 +26,20 @@ class _UpdateTaxInfoDetailsState extends State<UpdateTaxInfoDetails> {
   final gst = TextEditingController();
   final qst = TextEditingController();
   File? gst_doc, qst_doc;
+  String? gst_pic = "", qst_pic = "";
+
+  @override
+  void initState() {
+    super.initState();
+    Future.delayed(Duration.zero, () {
+      loadGSTDetails();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
+    final data = Provider.of<Repository>(context, listen: false).profile;
+    final int status = data?.status ?? 0;
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Constants.primaryColor,
@@ -230,10 +245,14 @@ class _UpdateTaxInfoDetailsState extends State<UpdateTaxInfoDetails> {
                     width: double.infinity,
                     child: Center(
                       child: gst_doc == null
-                          ? Icon(
-                              Icons.folder,
-                              size: 35.sp,
-                            )
+                          ? (gst_pic?.isEmpty ?? false)
+                              ? Icon(
+                                  Icons.folder,
+                                  size: 35.sp,
+                                )
+                              : CachedNetworkImage(
+                                  imageUrl: gst_pic ?? "",
+                                )
                           : Image.file(File(gst_doc!.path)),
                     ),
                   ),
@@ -285,10 +304,14 @@ class _UpdateTaxInfoDetailsState extends State<UpdateTaxInfoDetails> {
                     width: double.infinity,
                     child: Center(
                       child: qst_doc == null
-                          ? Icon(
-                              Icons.folder,
-                              size: 35.sp,
-                            )
+                          ? (qst_pic?.isEmpty ?? false)
+                              ? Icon(
+                                  Icons.folder,
+                                  size: 35.sp,
+                                )
+                              : CachedNetworkImage(
+                                  imageUrl: qst_pic ?? "",
+                                )
                           : Image.file(File(qst_doc!.path)),
                     ),
                   ),
@@ -299,7 +322,7 @@ class _UpdateTaxInfoDetailsState extends State<UpdateTaxInfoDetails> {
               height: 1.h,
             ),
             const Spacer(),
-            Container(
+            status==2?Container():Container(
               margin: EdgeInsets.symmetric(
                 horizontal: 1.w,
               ),
@@ -314,9 +337,7 @@ class _UpdateTaxInfoDetailsState extends State<UpdateTaxInfoDetails> {
                 ),
                 onPressed: () {
                   if (gst.text.isNotEmpty &&
-                      qst.text.isNotEmpty &&
-                      gst_doc != null &&
-                      qst_doc != null) {
+                      qst.text.isNotEmpty) {
                     updateTaxInfo();
                   } else {
                     var snackBar = SnackBar(
@@ -335,7 +356,7 @@ class _UpdateTaxInfoDetailsState extends State<UpdateTaxInfoDetails> {
                   }
                 },
                 child: Text(
-                  "Update Details",
+                  "Update Tax Details",
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
                         fontSize: 17.sp,
                         color: Constants.primaryColor,
@@ -360,13 +381,11 @@ class _UpdateTaxInfoDetailsState extends State<UpdateTaxInfoDetails> {
   }
 
   void updateTaxInfo() async {
+    await CommonFunction().showLoadingDialog(context);
     final response = await ApiProvider.instance.updateTaxationNo(
-        Storage.instance.token,
-        gst_doc!.path,
-        qst_doc!.path,
-        gst.text,
-        qst.text);
+        gst_doc?.path ?? "", qst_doc?.path ?? "", gst.text, qst.text);
     if (response.success ?? false) {
+      CommonFunction().hideLoadingDialog(context);
       var snackBar = SnackBar(
           backgroundColor: Constants.seventhColor,
           content: Text(
@@ -380,6 +399,7 @@ class _UpdateTaxInfoDetailsState extends State<UpdateTaxInfoDetails> {
       ScaffoldMessenger.of(context).showSnackBar(snackBar);
       Navigation.instance.goBack();
     } else {
+      CommonFunction().hideLoadingDialog(context);
       var snackBar = SnackBar(
           backgroundColor: Constants.secondaryColor,
           content: Text(
@@ -392,5 +412,14 @@ class _UpdateTaxInfoDetailsState extends State<UpdateTaxInfoDetails> {
           ));
       ScaffoldMessenger.of(context).showSnackBar(snackBar);
     }
+  }
+
+  void loadGSTDetails() {
+    final data = Provider.of<Repository>(context, listen: false).profile;
+    gst.text = data?.gst_no ?? "";
+    qst.text = data?.qst_no ?? "";
+    gst_pic = data?.gst_image ?? "";
+    qst_pic = data?.qst_image ?? "";
+    setState(() {});
   }
 }

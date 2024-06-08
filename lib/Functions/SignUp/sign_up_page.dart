@@ -9,6 +9,7 @@ import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 
 import '../../Constants/assets.dart';
+import '../../Constants/common_function.dart';
 import '../../Constants/constants.dart';
 import '../../Constants/custom_shapes.dart';
 import '../../Navigation/Navigate.dart';
@@ -438,6 +439,7 @@ class _SignInPageState extends State<SignInPage> {
                                       .showSnackBar(snackBar);
                                 }
                               } else {
+
                                 var snackBar = SnackBar(
                                     backgroundColor: Constants.secondaryColor,
                                     content: Text(
@@ -547,8 +549,10 @@ class _SignInPageState extends State<SignInPage> {
   }
 
   void sendOTP() async{
+    CommonFunction().showLoadingDialog(context);
     final response = await ApiProvider.instance.driverSendOtp(convertPhoneNumber(mobile.text));
     if(response.success??false){
+      CommonFunction().hideLoadingDialog(context);
       Navigation.instance.navigate(
         Routes.otpScreen,
         args: ScreenArguments(
@@ -560,6 +564,7 @@ class _SignInPageState extends State<SignInPage> {
         ),
       );
     }else{
+      CommonFunction().hideLoadingDialog(context);
       var snackBar = SnackBar(
           backgroundColor: Constants.secondaryColor,
           content: Text(

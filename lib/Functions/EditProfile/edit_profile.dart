@@ -1,18 +1,21 @@
 import 'dart:io';
 
 import 'package:auto_size_text/auto_size_text.dart';
-import 'package:bottom_picker/bottom_picker.dart';
-import 'package:bottom_picker/resources/arrays.dart';
-import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:geocoding/geocoding.dart';
+import 'package:home_plate/Api/api_provider.dart';
 import 'package:home_plate/Constants/constants.dart';
+import 'package:home_plate/Functions/EditProfile/Widgets/driving_license_card.dart';
 import 'package:home_plate/Navigation/Navigate.dart';
+import 'package:home_plate/Repository/repository.dart';
 import 'package:home_plate/Router/routes.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
+
+import 'Widgets/bank_details_card.dart';
+import 'Widgets/gst_details_card.dart';
+import 'Widgets/personal_details_card.dart';
 
 class EditProfileScreen extends StatefulWidget {
   const EditProfileScreen({super.key});
@@ -22,8 +25,6 @@ class EditProfileScreen extends StatefulWidget {
 }
 
 class _EditProfileScreenState extends State<EditProfileScreen> {
-  final firstname = TextEditingController();
-  final lastname = TextEditingController();
   final dlNumber = TextEditingController();
   final gst = TextEditingController();
   final qst = TextEditingController();
@@ -33,16 +34,19 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   final province = TextEditingController();
   final postalcode = TextEditingController();
   final address = TextEditingController();
+  final firstname = TextEditingController();
+  final lastname = TextEditingController();
   TextEditingController password = TextEditingController();
   TextEditingController confirmPassword = TextEditingController();
-  bool isPasswordVisible = false,
-      isConfirmPasswordVisible = false,
-      _isValidPassword = true,
-      _isValidConfirmPassword = true;
-  String? dob = "Please select your date of birth",
-      bank_name = "Royal Bank of Canada";
+  bool isPasswordVisible = false, isConfirmPasswordVisible = false;
+  String? bank_name = "Royal Bank of Canada",
+      doc_pic,
+      profile_pic,
+      city,
+      dl_url,
+      gst_pic,
+      qst_pic;
   File? dl_photo, gst_doc, qst_doc;
-  List<Placemark> _suggestions = [];
   List<String> bank_names = [
     "Royal Bank of Canada",
     "Toronto-Dominion Bank",
@@ -50,6 +54,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     "Bank of Montreal",
     "Canadian Imperial Bank of Canada",
   ];
+  String dob = "Please select your date of birth";
 
 // final email = TextEditingController();
 // String? address;
@@ -57,6 +62,12 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   void initState() {
     super.initState();
 // address.addListener(_onSearchChanged);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      loadPersonalDetails();
+      loadDrivingDetails();
+      loadGSTDetails();
+      loadBankDetails();
+    });
   }
 
   @override
@@ -65,7 +76,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       appBar: AppBar(
         backgroundColor: Constants.primaryColor,
         title: AutoSizeText(
-          "Profile Create",
+          "Profile Update",
           style: Theme.of(context).textTheme.bodySmall?.copyWith(
                 color: Constants.secondaryColor,
                 fontSize: 18.sp,
@@ -84,1853 +95,190 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-//               AutoSizeText.rich(
-//                 TextSpan(
-//                   children: [
-//                     TextSpan(
-//                       text: "Modify the information below and update when done",
-//                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
-//                             color: Colors.black87,
-//                             fontSize: 18.sp,
-// // fontWeight: FontWeight.bold,
-//                           ),
-//                     ),
-// // TextSpan(
-// //   text:
-// //   "#1109",
-// //   style:
-// //   Theme.of(context).textTheme.bodySmall?.copyWith(
-// //     color: Colors.black54,
-// //     fontSize: 14.sp,
-// //     fontWeight: FontWeight.bold,
-// //   ),
-// // ),
-//                   ],
-//                 ),
-//               ),
-//               SizedBox(
-//                 height: 2.h,
-//               ),
-              Card(
-                elevation: 3,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                clipBehavior: Clip.antiAlias,
-                margin: EdgeInsets.zero,
-                child: ExpansionTile(
-                  backgroundColor: Constants.primaryColor,
-                  collapsedBackgroundColor: Constants.primaryColor,
-                  title: AutoSizeText.rich(
-                    TextSpan(
-                      children: [
-                        TextSpan(
-                          text: "Personal Info",
-                          style:
-                              Theme.of(context).textTheme.bodySmall?.copyWith(
-                                    color: Colors.black87,
-                                    fontSize: 16.sp,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                        ),
-                      ],
-                    ),
-                    textAlign: TextAlign.start,
-                  ),
-                  expandedCrossAxisAlignment: CrossAxisAlignment.start,
-                  childrenPadding: EdgeInsets.symmetric(
-                    horizontal: 2.w,
-                    vertical: 1.h,
-                  ),
-                  children: [
-                    AutoSizeText.rich(
-                      TextSpan(
-                        children: [
-                          TextSpan(
-                            text: "First Name",
-                            style:
-                                Theme.of(context).textTheme.bodySmall?.copyWith(
-                                      color: Colors.black87,
-                                      fontSize: 16.sp,
-// fontWeight: FontWeight.bold,
-                                    ),
-                          ),
-                        ],
-                      ),
-                      textAlign: TextAlign.start,
-                    ),
-                    SizedBox(
-                      height: 1.h,
-                    ),
-                    Container(
-                      margin: EdgeInsets.symmetric(
-                        horizontal: 1.w,
-                      ),
-                      height: 5.5.h,
-                      child: TextField(
-// maxLength: 10,
-                        keyboardType: TextInputType.text,
-                        controller: firstname,
-                        decoration: InputDecoration(
-                          counterStyle: const TextStyle(
-                            height: double.minPositive,
-                          ),
-                          counterText: "",
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10.0),
-                            borderSide: const BorderSide(
-                              color: Constants.fourthColor,
-                            ),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10.0),
-                            borderSide: const BorderSide(
-                              color: Constants.fourthColor,
-                            ),
-                          ),
-                          enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10.0),
-                            borderSide: const BorderSide(
-                              color: Constants.fourthColor,
-                            ),
-                          ),
-                          filled: true,
-                          hintStyle: TextStyle(
-                            color: Colors.grey[800],
-                            fontSize: 15.sp,
-                          ),
-                          hintText: "Please enter your firstname",
-                          fillColor: Constants.bgColor,
-// prefixIcon: const Icon(
-//   Icons.phone,
-//   color: Constants.fourthColor,
-// ),
-                        ),
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              color: Constants.fourthColor,
-                              fontSize: 15.sp,
-                            ),
-                        textAlign: TextAlign.start,
-                      ),
-                    ),
-                    SizedBox(
-                      height: 2.h,
-                    ),
-                    AutoSizeText.rich(
-                      TextSpan(
-                        children: [
-                          TextSpan(
-                            text: "Last Name",
-                            style:
-                                Theme.of(context).textTheme.bodySmall?.copyWith(
-                                      color: Colors.black87,
-                                      fontSize: 16.sp,
-// fontWeight: FontWeight.bold,
-                                    ),
-                          ),
-                        ],
-                      ),
-                      textAlign: TextAlign.start,
-                    ),
-                    SizedBox(
-                      height: 1.h,
-                    ),
-                    Container(
-                      margin: EdgeInsets.symmetric(
-                        horizontal: 1.w,
-                      ),
-                      height: 5.5.h,
-                      child: TextField(
-// maxLength: 10,
-                        keyboardType: TextInputType.text,
-                        controller: lastname,
-                        decoration: InputDecoration(
-                          counterStyle: const TextStyle(
-                            height: double.minPositive,
-                          ),
-                          counterText: "",
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10.0),
-                            borderSide: const BorderSide(
-                              color: Constants.fourthColor,
-                            ),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10.0),
-                            borderSide: const BorderSide(
-                              color: Constants.fourthColor,
-                            ),
-                          ),
-                          enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10.0),
-                            borderSide: const BorderSide(
-                              color: Constants.fourthColor,
-                            ),
-                          ),
-                          filled: true,
-                          hintStyle: TextStyle(
-                            color: Colors.grey[800],
-                            fontSize: 15.sp,
-                          ),
-                          hintText: "Please enter your lastname",
-                          fillColor: Constants.bgColor,
-// prefixIcon: const Icon(
-//   Icons.phone,
-//   color: Constants.fourthColor,
-// ),
-                        ),
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              color: Constants.fourthColor,
-                              fontSize: 15.sp,
-                            ),
-                        textAlign: TextAlign.start,
-                      ),
-                    ),
-                    SizedBox(
-                      height: 2.h,
-                    ),
-                    AutoSizeText.rich(
-                      TextSpan(
-                        children: [
-                          TextSpan(
-                            text: "Date of Birth",
-                            style:
-                                Theme.of(context).textTheme.bodySmall?.copyWith(
-                                      color: Colors.black87,
-                                      fontSize: 16.sp,
-// fontWeight: FontWeight.bold,
-                                    ),
-                          ),
-                        ],
-                      ),
-                      textAlign: TextAlign.start,
-                    ),
-                    SizedBox(
-                      height: 1.h,
-                    ),
-                    GestureDetector(
-                      onTap: () {
-                        BottomPicker.date(
-                          pickerTitle: Text(
-                            'Set your Birthday',
-                            style:
-                                Theme.of(context).textTheme.bodySmall?.copyWith(
-                                      color: Constants.secondaryColor,
-                                      fontSize: 15.sp,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                          ),
-                          dateOrder: DatePickerDateOrder.dmy,
-                          initialDateTime: DateTime(1996, 10, 22),
-                          maxDateTime: DateTime(1998),
-                          minDateTime: DateTime(1980),
-                          pickerTextStyle:
-                              Theme.of(context).textTheme.bodySmall!.copyWith(
-                                    color: Constants.fourthColor,
-                                    fontSize: 15.sp,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                          buttonSingleColor: Constants.seventhColor,
-                          onChange: (index) {
-                            print(index);
-                          },
-                          onSubmit: (index) {
-                            setState(() {
-                              dob = DateFormat("dd-MMM-yyyy").format(
-                                  DateFormat("yyyy-MM-dd").parse(
-                                      DateTime.parse(index.toString())
-                                          .toString()));
-                            });
-                          },
-                          bottomPickerTheme: BottomPickerTheme.plumPlate,
-                        ).show(context);
-                      },
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: Constants.bgColor,
-                          border: Border.all(
-                            color: Constants.fourthColor,
-
-// borderSide: const BorderSide(
-                          ),
-                          borderRadius: BorderRadius.circular(10.0),
-                        ),
-                        margin: EdgeInsets.symmetric(
-                          horizontal: 1.w,
-                        ),
-                        height: 5.5.h,
-                        width: double.infinity,
-                        padding: EdgeInsets.symmetric(
-                          horizontal: 2.w,
-                          vertical: 1.2.h,
-                        ),
-                        child: Text(
-                          dob ?? "Please select your date of birth",
-                          style:
-                              Theme.of(context).textTheme.bodySmall?.copyWith(
-                                    color: Colors.black87,
-                                    fontSize: 15.sp,
-// fontWeight: FontWeight.bold,
-                                  ),
-                          textAlign: TextAlign.start,
-                        ),
-                      ),
-                    ),
-                    SizedBox(
-                      height: 2.h,
-                    ),
-                    AutoSizeText.rich(
-                      TextSpan(
-                        children: [
-                          TextSpan(
-                            text: "Address",
-                            style:
-                                Theme.of(context).textTheme.bodySmall?.copyWith(
-                                      color: Colors.black87,
-                                      fontSize: 16.sp,
-// fontWeight: FontWeight.bold,
-                                    ),
-                          ),
-                        ],
-                      ),
-                      textAlign: TextAlign.start,
-                    ),
-                    SizedBox(
-                      height: 1.h,
-                    ),
-                    Container(
-                      // color: Constants.bgColor,
-                      margin: EdgeInsets.symmetric(
-                        horizontal: 1.w,
-                      ),
-                      height: 5.5.h,
-                      child: TextField(
-// maxLength: 10,
-                        keyboardType: TextInputType.text,
-                        controller: address,
-                        onChanged: (val) {
-                          _onSearchChanged();
-                        },
-                        onSubmitted: (val) {},
-                        decoration: InputDecoration(
-                          counterStyle: const TextStyle(
-                            height: double.minPositive,
-                          ),
-                          counterText: "",
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10.0),
-                            borderSide: const BorderSide(
-                              color: Constants.fourthColor,
-                            ),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10.0),
-                            borderSide: const BorderSide(
-                              color: Constants.fourthColor,
-                            ),
-                          ),
-                          enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10.0),
-                            borderSide: const BorderSide(
-                              color: Constants.fourthColor,
-                            ),
-                          ),
-                          filled: true,
-                          hintStyle: TextStyle(
-                            color: Colors.grey[800],
-                            fontSize: 15.sp,
-                          ),
-                          hintText: "Please enter your address",
-                          fillColor: Constants.bgColor,
-// prefixIcon: const Icon(
-//   Icons.phone,
-//   color: Constants.fourthColor,
-// ),
-                        ),
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              color: Constants.fourthColor,
-                              fontSize: 15.sp,
-                            ),
-                        textAlign: TextAlign.start,
-                      ),
-                    ),
-                    Card(
-                      elevation: 4,
-                      child: Container(
-                        color: Constants.primaryColor,
-                        child: ListView.separated(
-                          shrinkWrap: true,
-                          itemCount: _suggestions.length,
-                          itemBuilder: (context, index) {
-                            final suggestion = _suggestions[index];
-                            return ListTile(
-                              title: Text(suggestion.name ?? ''),
-                              subtitle: Text(suggestion.locality ?? ''),
-                              onTap: () {
-// Handle location selection
-                                address.text = suggestion.name!;
-                                province.text = suggestion.administrativeArea!;
-                                postalcode.text = suggestion.postalCode!;
-                                _suggestions = [];
-                                setState(() {}); // Clear suggestions
-                              },
-                            );
-                          },
-                          separatorBuilder: (BuildContext context, int index) {
-                            return const Divider();
-                          },
-                        ),
-                      ),
-                    ),
-                    SizedBox(
-                      height: 2.h,
-                    ),
-                    AutoSizeText.rich(
-                      TextSpan(
-                        children: [
-                          TextSpan(
-                            text: "Province",
-                            style:
-                                Theme.of(context).textTheme.bodySmall?.copyWith(
-                                      color: Colors.black87,
-                                      fontSize: 16.sp,
-// fontWeight: FontWeight.bold,
-                                    ),
-                          ),
-                        ],
-                      ),
-                      textAlign: TextAlign.start,
-                    ),
-                    SizedBox(
-                      height: 1.h,
-                    ),
-                    Container(
-                      margin: EdgeInsets.symmetric(
-                        horizontal: 1.w,
-                      ),
-                      height: 5.5.h,
-                      child: TextField(
-// maxLength: 10,
-                        keyboardType: TextInputType.text,
-                        controller: province,
-                        decoration: InputDecoration(
-                          counterStyle: const TextStyle(
-                            height: double.minPositive,
-                          ),
-                          counterText: "",
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10.0),
-                            borderSide: const BorderSide(
-                              color: Constants.fourthColor,
-                            ),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10.0),
-                            borderSide: const BorderSide(
-                              color: Constants.fourthColor,
-                            ),
-                          ),
-                          enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10.0),
-                            borderSide: const BorderSide(
-                              color: Constants.fourthColor,
-                            ),
-                          ),
-                          filled: true,
-                          hintStyle: TextStyle(
-                            color: Colors.grey[800],
-                            fontSize: 15.sp,
-                          ),
-                          hintText: "Please enter your province",
-                          fillColor: Constants.bgColor,
-// prefixIcon: const Icon(
-//   Icons.phone,
-//   color: Constants.fourthColor,
-// ),
-                        ),
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              color: Constants.fourthColor,
-                              fontSize: 15.sp,
-                            ),
-                        textAlign: TextAlign.start,
-                      ),
-                    ),
-                    SizedBox(
-                      height: 1.h,
-                    ),
-                    AutoSizeText.rich(
-                      TextSpan(
-                        children: [
-                          TextSpan(
-                            text: "Postal Code",
-                            style:
-                                Theme.of(context).textTheme.bodySmall?.copyWith(
-                                      color: Colors.black87,
-                                      fontSize: 16.sp,
-                                    ),
-                          ),
-                        ],
-                      ),
-                      textAlign: TextAlign.start,
-                    ),
-                    SizedBox(
-                      height: 1.h,
-                    ),
-                    Container(
-                      margin: EdgeInsets.symmetric(
-                        horizontal: 1.w,
-                      ),
-                      height: 5.5.h,
-                      child: TextField(
-// maxLength: 10,
-                        keyboardType: TextInputType.text,
-                        controller: postalcode,
-                        decoration: InputDecoration(
-                          counterStyle: const TextStyle(
-                            height: double.minPositive,
-                          ),
-                          counterText: "",
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10.0),
-                            borderSide: const BorderSide(
-                              color: Constants.fourthColor,
-                            ),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10.0),
-                            borderSide: const BorderSide(
-                              color: Constants.fourthColor,
-                            ),
-                          ),
-                          enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10.0),
-                            borderSide: const BorderSide(
-                              color: Constants.fourthColor,
-                            ),
-                          ),
-                          filled: true,
-                          hintStyle: TextStyle(
-                            color: Colors.grey[800],
-                            fontSize: 15.sp,
-                          ),
-                          hintText: "Please enter your postal code",
-                          fillColor: Constants.bgColor,
-// prefixIcon: const Icon(
-//   Icons.phone,
-//   color: Constants.fourthColor,
-// ),
-                        ),
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              color: Constants.fourthColor,
-                              fontSize: 15.sp,
-                            ),
-                        textAlign: TextAlign.start,
-                      ),
-                    ),
-                    SizedBox(
-                      height: 1.h,
-                    ),
-                    AutoSizeText.rich(
-                      TextSpan(
-                        children: [
-                          TextSpan(
-                            text: "Password",
-                            style:
-                                Theme.of(context).textTheme.bodySmall?.copyWith(
-                                      color: Colors.black87,
-                                      fontSize: 16.sp,
-// fontWeight: FontWeight.bold,
-                                    ),
-                          ),
-                        ],
-                      ),
-                      textAlign: TextAlign.start,
-                    ),
-                    SizedBox(
-                      height: 1.h,
-                    ),
-                    Container(
-                      margin: EdgeInsets.symmetric(
-                        horizontal: 1.w,
-                      ),
-                      height: _isValidPassword ? 5.5.h : 9.h,
-                      child: TextField(
-                        controller: password,
-                        keyboardType: TextInputType.visiblePassword,
-                        obscureText: !isPasswordVisible,
-                        onChanged: (value) {
-// Validate password on every change
-                          setState(() {
-                            _isValidPassword = validationPassword(value);
-                          });
-                        },
-                        decoration: InputDecoration(
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10.0),
-                            borderSide: const BorderSide(
-                              color: Constants.fourthColor,
-                            ),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10.0),
-                            borderSide: const BorderSide(
-                              color: Constants.fourthColor,
-                            ),
-                          ),
-                          enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10.0),
-                            borderSide: const BorderSide(
-                              color: Constants.fourthColor,
-                            ),
-                          ),
-                          filled: true,
-                          hintStyle: TextStyle(
-                            color: Colors.grey[800],
-                            fontSize: 15.sp,
-                          ),
-                          hintText: "Please enter your password",
-                          fillColor: Constants.bgColor,
-                          errorText: _isValidPassword
-                              ? null
-                              : 'Password does not meet requirements',
-// prefixIcon: const Icon(
-//   Icons.password,
-//   color: Constants.fourthColor,
-// ),
-
-                          suffixIcon: GestureDetector(
-                            onTap: () {
-                              setState(() {
-                                isPasswordVisible = !isPasswordVisible;
-                              });
-                            },
-                            child: Icon(
-                              !isPasswordVisible
-                                  ? Icons.remove_red_eye_outlined
-                                  : Icons.remove_red_eye_sharp,
-                              color: Constants.fourthColor,
-                            ),
-                          ),
-                        ),
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              color: Constants.fourthColor,
-                              fontSize: 15.sp,
-                            ),
-                        textAlign: TextAlign.start,
-                      ),
-                    ),
-                    validationPassword(password.text)
-                        ? Container()
-                        : SizedBox(
-                            height: 1.h,
-                          ),
-                    validationPassword(password.text)
-                        ? Container()
-                        : Container(
-                            padding: EdgeInsets.symmetric(
-                              horizontal: 2.5.w,
-                              vertical: 1.h,
-                            ),
-                            decoration: BoxDecoration(
-                                color: Constants.primaryColor,
-                                borderRadius: BorderRadius.circular(10),
-                                border: Border.all(
-                                  color: Colors.black,
-                                )),
-                            width: double.infinity,
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                AutoSizeText.rich(
-                                  TextSpan(
-                                    children: [
-                                      TextSpan(
-                                        text:
-                                            "Password should meet the following requirements",
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .bodySmall
-                                            ?.copyWith(
-                                              color: Colors.black87,
-                                              fontSize: 15.sp,
-// fontWeight: FontWeight.bold,
-                                            ),
-                                      ),
-                                    ],
-                                  ),
-                                  textAlign: TextAlign.start,
-                                ),
-                                SizedBox(
-                                  height: 0.5.h,
-                                ),
-                                Row(
-                                  children: [
-                                    Icon(
-                                      hasUppercase(password.text)
-                                          ? Icons.check
-                                          : Icons.cancel,
-                                      color: hasUppercase(password.text)
-                                          ? Constants.seventhColor
-                                          : Constants.secondaryColor,
-                                    ),
-                                    SizedBox(
-                                      width: 2.w,
-                                    ),
-                                    AutoSizeText.rich(
-                                      TextSpan(
-                                        children: [
-                                          TextSpan(
-                                            text:
-                                                "Atleast one uppercase letter",
-                                            style: Theme.of(context)
-                                                .textTheme
-                                                .bodySmall
-                                                ?.copyWith(
-                                                  color: hasUppercase(
-                                                          password.text)
-                                                      ? Constants.seventhColor
-                                                      : Constants
-                                                          .secondaryColor,
-                                                  fontSize: 15.sp,
-                                                  fontWeight: FontWeight.bold,
-                                                ),
-                                          ),
-                                        ],
-                                      ),
-                                      textAlign: TextAlign.start,
-                                    ),
-                                  ],
-                                ),
-                                Row(
-                                  children: [
-                                    Icon(
-                                      hasLowercase(password.text)
-                                          ? Icons.check
-                                          : Icons.cancel,
-                                      color: hasLowercase(password.text)
-                                          ? Constants.seventhColor
-                                          : Constants.secondaryColor,
-                                    ),
-                                    SizedBox(
-                                      width: 2.w,
-                                    ),
-                                    AutoSizeText.rich(
-                                      TextSpan(
-                                        children: [
-                                          TextSpan(
-                                            text:
-                                                "Atleast one lowercase letter",
-                                            style: Theme.of(context)
-                                                .textTheme
-                                                .bodySmall
-                                                ?.copyWith(
-                                                  color: hasLowercase(
-                                                          password.text)
-                                                      ? Constants.seventhColor
-                                                      : Constants
-                                                          .secondaryColor,
-                                                  fontSize: 15.sp,
-                                                  fontWeight: FontWeight.bold,
-                                                ),
-                                          ),
-                                        ],
-                                      ),
-                                      textAlign: TextAlign.start,
-                                    ),
-                                  ],
-                                ),
-                                Row(
-                                  children: [
-                                    Icon(
-                                      hasNumber(password.text)
-                                          ? Icons.check
-                                          : Icons.cancel,
-                                      color: hasNumber(password.text)
-                                          ? Constants.seventhColor
-                                          : Constants.secondaryColor,
-                                    ),
-                                    SizedBox(
-                                      width: 2.w,
-                                    ),
-                                    AutoSizeText.rich(
-                                      TextSpan(
-                                        children: [
-                                          TextSpan(
-                                            text: "Atleast one number",
-                                            style: Theme.of(context)
-                                                .textTheme
-                                                .bodySmall
-                                                ?.copyWith(
-                                                  color:
-                                                      hasNumber(password.text)
-                                                          ? Constants
-                                                              .seventhColor
-                                                          : Constants
-                                                              .secondaryColor,
-                                                  fontSize: 15.sp,
-                                                  fontWeight: FontWeight.bold,
-                                                ),
-                                          ),
-                                        ],
-                                      ),
-                                      textAlign: TextAlign.start,
-                                    ),
-                                  ],
-                                ),
-                                Row(
-                                  children: [
-                                    Icon(
-                                      hasSpecialCharacter(password.text)
-                                          ? Icons.check
-                                          : Icons.cancel,
-                                      color: hasSpecialCharacter(password.text)
-                                          ? Constants.seventhColor
-                                          : Constants.secondaryColor,
-                                    ),
-                                    SizedBox(
-                                      width: 2.w,
-                                    ),
-                                    AutoSizeText.rich(
-                                      TextSpan(
-                                        children: [
-                                          TextSpan(
-                                            text:
-                                                "Atleast one special character",
-                                            style: Theme.of(context)
-                                                .textTheme
-                                                .bodySmall
-                                                ?.copyWith(
-                                                  color: hasSpecialCharacter(
-                                                          password.text)
-                                                      ? Constants.seventhColor
-                                                      : Constants
-                                                          .secondaryColor,
-                                                  fontSize: 15.sp,
-                                                  fontWeight: FontWeight.bold,
-                                                ),
-                                          ),
-                                        ],
-                                      ),
-                                      textAlign: TextAlign.start,
-                                    ),
-                                  ],
-                                ),
-                                Row(
-                                  children: [
-                                    Icon(
-                                      hasMinLength(password.text)
-                                          ? Icons.check
-                                          : Icons.cancel,
-                                      color: hasMinLength(password.text)
-                                          ? Constants.seventhColor
-                                          : Constants.secondaryColor,
-                                    ),
-                                    SizedBox(
-                                      width: 2.w,
-                                    ),
-                                    AutoSizeText.rich(
-                                      TextSpan(
-                                        children: [
-                                          TextSpan(
-                                            text: "Be atleast 8 characters",
-                                            style: Theme.of(context)
-                                                .textTheme
-                                                .bodySmall
-                                                ?.copyWith(
-                                                  color: hasMinLength(
-                                                          password.text)
-                                                      ? Constants.seventhColor
-                                                      : Constants
-                                                          .secondaryColor,
-                                                  fontSize: 15.sp,
-                                                  fontWeight: FontWeight.bold,
-                                                ),
-                                          ),
-                                        ],
-                                      ),
-                                      textAlign: TextAlign.start,
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                          ),
-                    SizedBox(
-                      height: 1.h,
-                    ),
-                    AutoSizeText.rich(
-                      TextSpan(
-                        children: [
-                          TextSpan(
-                            text: "Confirm Password",
-                            style:
-                                Theme.of(context).textTheme.bodySmall?.copyWith(
-                                      color: Colors.black87,
-                                      fontSize: 16.sp,
-// fontWeight: FontWeight.bold,
-                                    ),
-                          ),
-                        ],
-                      ),
-                      textAlign: TextAlign.start,
-                    ),
-                    SizedBox(
-                      height: 1.h,
-                    ),
-                    Container(
-                      margin: EdgeInsets.symmetric(
-                        horizontal: 1.w,
-                      ),
-                      height: _isValidConfirmPassword ? 5.5.h : 9.h,
-                      child: TextField(
-                        controller: confirmPassword,
-                        keyboardType: TextInputType.visiblePassword,
-                        obscureText: !isConfirmPasswordVisible,
-                        onChanged: (value) {
-// Validate password on every change
-                          setState(() {
-                            _isValidConfirmPassword = validationPassword(value);
-                          });
-                        },
-                        decoration: InputDecoration(
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10.0),
-                            borderSide: const BorderSide(
-                              color: Constants.fourthColor,
-                            ),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10.0),
-                            borderSide: const BorderSide(
-                              color: Constants.fourthColor,
-                            ),
-                          ),
-                          enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10.0),
-                            borderSide: const BorderSide(
-                              color: Constants.fourthColor,
-                            ),
-                          ),
-                          filled: true,
-                          hintStyle: TextStyle(
-                            color: Colors.grey[800],
-                            fontSize: 15.sp,
-                          ),
-                          hintText: "Please enter your confirm password",
-                          errorText: _isValidConfirmPassword
-                              ? null
-                              : 'Password does not meet requirements',
-                          fillColor: Constants.bgColor,
-// prefixIcon: const Icon(
-//   Icons.password,
-//   color: Constants.fourthColor,
-// ),
-                          suffixIcon: GestureDetector(
-                            onTap: () {
-                              setState(() {
-                                isConfirmPasswordVisible =
-                                    !isConfirmPasswordVisible;
-                              });
-                            },
-                            child: Icon(
-                              !isConfirmPasswordVisible
-                                  ? Icons.remove_red_eye_outlined
-                                  : Icons.remove_red_eye_sharp,
-                              color: Constants.fourthColor,
-                            ),
-                          ),
-                        ),
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              color: Constants.fourthColor,
-                              fontSize: 15.sp,
-                            ),
-                        textAlign: TextAlign.start,
-                      ),
-                    ),
-                  ],
-                ),
+              PersonalDetailsCard(
+                province: province,
+                postalcode: postalcode,
+                address: address,
+                password: password,
+                confirmPassword: confirmPassword,
+                firstname: firstname,
+                lastname: lastname,
+                dob: dob,
+                updateDOB: (String val) {
+                  setState(() {
+                    dob = val;
+                  });
+                },
+                document: doc_pic ?? "",
+                profile_pic: profile_pic ?? "",
+                loadProfile: () {
+                  fetchPersonalDetails();
+                },
+                city: city ?? "",
               ),
               // const Divider(),
               SizedBox(
                 height: 2.h,
               ),
-              Card(
-                elevation: 3,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                clipBehavior: Clip.antiAlias,
-                margin: EdgeInsets.zero,
-                child: ExpansionTile(
-                  backgroundColor: Constants.primaryColor,
-                  collapsedBackgroundColor: Constants.primaryColor,
-                  title: AutoSizeText.rich(
-                    TextSpan(
-                      children: [
-                        TextSpan(
-                          text: "Driving License",
-                          style:
-                              Theme.of(context).textTheme.bodySmall?.copyWith(
-                                    color: Colors.black87,
-                                    fontSize: 16.sp,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                        ),
-                      ],
-                    ),
-                    textAlign: TextAlign.start,
-                  ),
-                  expandedCrossAxisAlignment: CrossAxisAlignment.start,
-                  childrenPadding: EdgeInsets.symmetric(
-                    horizontal: 2.w,
-                    vertical: 1.h,
-                  ),
-                  children: [
-                    AutoSizeText.rich(
-                      TextSpan(
-                        children: [
-                          TextSpan(
-                            text: "DL Number",
-                            style:
-                                Theme.of(context).textTheme.bodySmall?.copyWith(
-                                      color: Colors.black87,
-                                      fontSize: 16.sp,
-// fontWeight: FontWeight.bold,
-                                    ),
-                          ),
-                        ],
-                      ),
-                      textAlign: TextAlign.start,
-                    ),
-                    SizedBox(
-                      height: 1.h,
-                    ),
-                    Container(
-                      margin: EdgeInsets.symmetric(
-                        horizontal: 1.w,
-                      ),
-                      height: 5.5.h,
-                      child: TextField(
-// maxLength: 10,
-                        keyboardType: TextInputType.text,
-                        controller: dlNumber,
-                        decoration: InputDecoration(
-                          counterStyle: const TextStyle(
-                            height: double.minPositive,
-                          ),
-                          counterText: "",
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10.0),
-                            borderSide: const BorderSide(
-                              color: Constants.fourthColor,
-                            ),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10.0),
-                            borderSide: const BorderSide(
-                              color: Constants.fourthColor,
-                            ),
-                          ),
-                          enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10.0),
-                            borderSide: const BorderSide(
-                              color: Constants.fourthColor,
-                            ),
-                          ),
-                          filled: true,
-                          hintStyle: TextStyle(
-                            color: Colors.grey[800],
-                            fontSize: 15.sp,
-                          ),
-                          hintText: "Please enter your DL number",
-                          fillColor: Constants.bgColor,
-// prefixIcon: const Icon(
-//   Icons.phone,
-//   color: Constants.fourthColor,
-// ),
-                        ),
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              color: Constants.fourthColor,
-                              fontSize: 15.sp,
-                            ),
-                        textAlign: TextAlign.start,
-                      ),
-                    ),
-                    SizedBox(
-                      height: 2.h,
-                    ),
-                    AutoSizeText.rich(
-                      TextSpan(
-                        children: [
-                          TextSpan(
-                            text: "Document",
-                            style:
-                                Theme.of(context).textTheme.bodySmall?.copyWith(
-                                      color: Colors.black87,
-                                      fontSize: 16.sp,
-// fontWeight: FontWeight.bold,
-                                    ),
-                          ),
-                        ],
-                      ),
-                      textAlign: TextAlign.start,
-                    ),
-                    SizedBox(
-                      height: 1.h,
-                    ),
-                    Padding(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 2.w,
-                      ),
-                      child: GestureDetector(
-                        onTap: () {
-                          pickImage((path) {
-                            setState(() {
-                              dl_photo = File(path);
-                            });
-                          });
-                        },
-                        child: DottedBorder(
-                          color: Colors.black,
-                          strokeWidth: 1,
-                          child: Container(
-                            color: Constants.bgColor,
-                            height: 20.h,
-                            width: double.infinity,
-                            child: Center(
-                              child: dl_photo == null
-                                  ? Icon(
-                                      Icons.folder,
-                                      size: 35.sp,
-                                    )
-                                  : Image.file(File(dl_photo!.path)),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
+              DrivingLicenseCard(
+                dlNumber: dlNumber,
+                onTap: (File val) {
+                  setState(() {
+                    dl_photo = val;
+                  });
+                },
+                dl_url: dl_url ?? "",
+                fetchDetails: () {
+                  fetchPersonalDetails();
+                },
               ),
               SizedBox(
                 height: 2.h,
               ),
-              Card(
-                elevation: 3,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                clipBehavior: Clip.antiAlias,
-                margin: EdgeInsets.zero,
-                child: ExpansionTile(
-                  backgroundColor: Constants.primaryColor,
-                  collapsedBackgroundColor: Constants.primaryColor,
-                  title: AutoSizeText.rich(
-                    TextSpan(
-                      children: [
-                        TextSpan(
-                          text: "GST and QST Details",
-                          style:
-                              Theme.of(context).textTheme.bodySmall?.copyWith(
-                                    color: Colors.black87,
-                                    fontSize: 16.sp,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                        ),
-                      ],
-                    ),
-                    textAlign: TextAlign.start,
-                  ),
-                  expandedCrossAxisAlignment: CrossAxisAlignment.start,
-                  childrenPadding: EdgeInsets.symmetric(
-                    horizontal: 2.w,
-                    vertical: 1.h,
-                  ),
-                  children: [
-                    AutoSizeText.rich(
-                      TextSpan(
-                        children: [
-                          TextSpan(
-                            text: "GST Number",
-                            style:
-                                Theme.of(context).textTheme.bodySmall?.copyWith(
-                                      color: Colors.black87,
-                                      fontSize: 16.sp,
-// fontWeight: FontWeight.bold,
-                                    ),
-                          ),
-                        ],
-                      ),
-                      textAlign: TextAlign.start,
-                    ),
-                    SizedBox(
-                      height: 1.h,
-                    ),
-                    Container(
-                      margin: EdgeInsets.symmetric(
-                        horizontal: 1.w,
-                      ),
-                      height: 5.5.h,
-                      child: TextField(
-// maxLength: 10,
-                        keyboardType: TextInputType.number,
-                        controller: gst,
-                        decoration: InputDecoration(
-                          counterStyle: const TextStyle(
-                            height: double.minPositive,
-                          ),
-                          counterText: "",
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10.0),
-                            borderSide: const BorderSide(
-                              color: Constants.fourthColor,
-                            ),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10.0),
-                            borderSide: const BorderSide(
-                              color: Constants.fourthColor,
-                            ),
-                          ),
-                          enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10.0),
-                            borderSide: const BorderSide(
-                              color: Constants.fourthColor,
-                            ),
-                          ),
-                          filled: true,
-                          hintStyle: TextStyle(
-                            color: Colors.grey[800],
-                            fontSize: 15.sp,
-                          ),
-                          hintText: "Please enter your gst",
-                          fillColor: Constants.bgColor,
-// prefixIcon: const Icon(
-//   Icons.phone,
-//   color: Constants.fourthColor,
-// ),
-                        ),
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              color: Constants.fourthColor,
-                              fontSize: 15.sp,
-                            ),
-                        textAlign: TextAlign.start,
-                      ),
-                    ),
-                    SizedBox(
-                      height: 2.h,
-                    ),
-                    AutoSizeText.rich(
-                      TextSpan(
-                        children: [
-                          TextSpan(
-                            text: "QST Number",
-                            style:
-                                Theme.of(context).textTheme.bodySmall?.copyWith(
-                                      color: Colors.black87,
-                                      fontSize: 16.sp,
-// fontWeight: FontWeight.bold,
-                                    ),
-                          ),
-                        ],
-                      ),
-                      textAlign: TextAlign.start,
-                    ),
-                    SizedBox(
-                      height: 1.h,
-                    ),
-                    Container(
-                      margin: EdgeInsets.symmetric(
-                        horizontal: 1.w,
-                      ),
-                      height: 5.5.h,
-                      child: TextField(
-// maxLength: 10,
-                        keyboardType: TextInputType.number,
-                        controller: qst,
-                        decoration: InputDecoration(
-                          counterStyle: const TextStyle(
-                            height: double.minPositive,
-                          ),
-                          counterText: "",
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10.0),
-                            borderSide: const BorderSide(
-                              color: Constants.fourthColor,
-                            ),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10.0),
-                            borderSide: const BorderSide(
-                              color: Constants.fourthColor,
-                            ),
-                          ),
-                          enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10.0),
-                            borderSide: const BorderSide(
-                              color: Constants.fourthColor,
-                            ),
-                          ),
-                          filled: true,
-                          hintStyle: TextStyle(
-                            color: Colors.grey[800],
-                            fontSize: 15.sp,
-                          ),
-                          hintText: "Please enter your qst",
-                          fillColor: Constants.bgColor,
-// prefixIcon: const Icon(
-//   Icons.phone,
-//   color: Constants.fourthColor,
-// ),
-                        ),
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              color: Constants.fourthColor,
-                              fontSize: 15.sp,
-                            ),
-                        textAlign: TextAlign.start,
-                      ),
-                    ),
-                    SizedBox(
-                      height: 2.h,
-                    ),
-                    AutoSizeText.rich(
-                      TextSpan(
-                        children: [
-                          TextSpan(
-                            text: "GST Document",
-                            style:
-                                Theme.of(context).textTheme.bodySmall?.copyWith(
-                                      color: Colors.black87,
-                                      fontSize: 16.sp,
-// fontWeight: FontWeight.bold,
-                                    ),
-                          ),
-                        ],
-                      ),
-                      textAlign: TextAlign.start,
-                    ),
-                    SizedBox(
-                      height: 1.h,
-                    ),
-                    Padding(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 2.w,
-                      ),
-                      child: GestureDetector(
-                        onTap: () {
-                          pickImage((path) {
-                            setState(() {
-                              gst_doc = File(path);
-                            });
-                          });
-                        },
-                        child: DottedBorder(
-                          color: Colors.black,
-                          strokeWidth: 1,
-                          child: Container(
-                            color: Constants.bgColor,
-                            height: 20.h,
-                            width: double.infinity,
-                            child: Center(
-                              child: gst_doc == null
-                                  ? Icon(
-                                      Icons.folder,
-                                      size: 35.sp,
-                                    )
-                                  : Image.file(File(gst_doc!.path)),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                    SizedBox(
-                      height: 1.h,
-                    ),
-                    SizedBox(
-                      height: 2.h,
-                    ),
-                    AutoSizeText.rich(
-                      TextSpan(
-                        children: [
-                          TextSpan(
-                            text: "QST Document",
-                            style:
-                                Theme.of(context).textTheme.bodySmall?.copyWith(
-                                      color: Colors.black87,
-                                      fontSize: 16.sp,
-// fontWeight: FontWeight.bold,
-                                    ),
-                          ),
-                        ],
-                      ),
-                      textAlign: TextAlign.start,
-                    ),
-                    SizedBox(
-                      height: 1.h,
-                    ),
-                    Padding(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 2.w,
-                      ),
-                      child: GestureDetector(
-                        onTap: () {
-                          pickImage((path) {
-                            setState(() {
-                              qst_doc = File(path);
-                            });
-                          });
-                        },
-                        child: DottedBorder(
-                          color: Colors.black,
-                          strokeWidth: 1,
-                          child: Container(
-                            color: Constants.bgColor,
-                            height: 20.h,
-                            width: double.infinity,
-                            child: Center(
-                              child: qst_doc == null
-                                  ? Icon(
-                                      Icons.folder,
-                                      size: 35.sp,
-                                    )
-                                  : Image.file(File(qst_doc!.path)),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                    SizedBox(
-                      height: 1.h,
-                    ),
-                  ],
-                ),
+              GstDetailsCard(
+                gst: gst,
+                qst: qst,
+                gst_url: gst_pic ?? "",
+                qst_url: qst_pic ?? "",
+                gst_doc: gst_doc,
+                qst_doc: qst_doc,
+                onGST: (File val) {
+                  setState(() {
+                    gst_doc = val;
+                  });
+                },
+                onQST: (File val) {
+                  setState(() {
+                    qst_doc = val;
+                  });
+                },
+                fetchDetails: () {
+                  fetchPersonalDetails();
+                },
               ),
               SizedBox(
                 height: 2.h,
               ),
-              Card(
-                elevation: 3,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                clipBehavior: Clip.antiAlias,
-                margin: EdgeInsets.zero,
-                child: ExpansionTile(
-                  backgroundColor: Constants.primaryColor,
-                  collapsedBackgroundColor: Constants.primaryColor,
-                  title: AutoSizeText.rich(
-                    TextSpan(
-                      children: [
-                        TextSpan(
-                          text: "Bank Details",
-                          style:
-                              Theme.of(context).textTheme.bodySmall?.copyWith(
-                                    color: Colors.black87,
-                                    fontSize: 16.sp,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                        ),
-                      ],
-                    ),
-                    textAlign: TextAlign.start,
-                  ),
-                  expandedCrossAxisAlignment: CrossAxisAlignment.start,
-                  childrenPadding: EdgeInsets.symmetric(
-                    horizontal: 2.w,
-                    vertical: 1.h,
-                  ),
-                  children: [
-                    AutoSizeText.rich(
-                      TextSpan(
-                        children: [
-                          TextSpan(
-                            text: "Bank Name",
-                            style:
-                                Theme.of(context).textTheme.bodySmall?.copyWith(
-                                      color: Colors.black87,
-                                      fontSize: 16.sp,
-// fontWeight: FontWeight.bold,
-                                    ),
-                          ),
-                        ],
-                      ),
-                      textAlign: TextAlign.start,
-                    ),
-                    SizedBox(
-                      height: 1.h,
-                    ),
-                    Container(
-                      margin: EdgeInsets.symmetric(
-                        horizontal: 1.w,
-                      ),
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 2.w,
-                      ),
-                      decoration: BoxDecoration(
-                        border: Border.all(
-                          color: Constants.fourthColor,
-// borderSide: const BorderSide(
-                        ),
-                        borderRadius: BorderRadius.circular(10.0),
-                        color: Constants.bgColor,
-                      ),
-                      height: 5.5.h,
-                      width: double.infinity,
-                      child: DropdownButtonHideUnderline(
-                        child: DropdownButton<String>(
-                          isExpanded: true,
-                          value: bank_name,
-                          items: bank_names.map((String value) {
-                            return DropdownMenuItem<String>(
-                              value: value,
-                              child: Text(value),
-                            );
-                          }).toList(),
-                          onChanged: (_) {
-                            setState(() {
-                              bank_name = _;
-                            });
-                          },
-                          style:
-                              Theme.of(context).textTheme.bodySmall?.copyWith(
-                                    color: Constants.fourthColor,
-                                    fontSize: 15.sp,
-                                  ),
-                        ),
-                      ),
-                    ),
-                    SizedBox(
-                      height: 1.h,
-                    ),
-                    AutoSizeText.rich(
-                      TextSpan(
-                        children: [
-                          TextSpan(
-                            text: "Bank Number",
-                            style:
-                                Theme.of(context).textTheme.bodySmall?.copyWith(
-                                      color: Colors.black87,
-                                      fontSize: 16.sp,
-// fontWeight: FontWeight.bold,
-                                    ),
-                          ),
-                        ],
-                      ),
-                      textAlign: TextAlign.start,
-                    ),
-                    SizedBox(
-                      height: 1.h,
-                    ),
-                    Container(
-                      margin: EdgeInsets.symmetric(
-                        horizontal: 1.w,
-                      ),
-                      height: 5.5.h,
-                      child: TextField(
-// maxLength: 10,
-                        keyboardType: TextInputType.number,
-                        controller: bank,
-                        decoration: InputDecoration(
-                          counterStyle: const TextStyle(
-                            height: double.minPositive,
-                          ),
-                          counterText: "",
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10.0),
-                            borderSide: const BorderSide(
-                              color: Constants.fourthColor,
-                            ),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10.0),
-                            borderSide: const BorderSide(
-                              color: Constants.fourthColor,
-                            ),
-                          ),
-                          enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10.0),
-                            borderSide: const BorderSide(
-                              color: Constants.fourthColor,
-                            ),
-                          ),
-                          filled: true,
-                          hintStyle: TextStyle(
-                            color: Colors.grey[800],
-                            fontSize: 15.sp,
-                          ),
-                          hintText: "Please enter your account no",
-                          fillColor: Constants.bgColor,
-// prefixIcon: const Icon(
-//   Icons.phone,
-//   color: Constants.fourthColor,
-// ),
-                        ),
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              color: Constants.fourthColor,
-                              fontSize: 15.sp,
-                            ),
-                        textAlign: TextAlign.start,
-                      ),
-                    ),
-                    SizedBox(
-                      height: 1.h,
-                    ),
-                    AutoSizeText.rich(
-                      TextSpan(
-                        children: [
-                          TextSpan(
-                            text: "Transit Number",
-                            style:
-                                Theme.of(context).textTheme.bodySmall?.copyWith(
-                                      color: Colors.black87,
-                                      fontSize: 16.sp,
-// fontWeight: FontWeight.bold,
-                                    ),
-                          ),
-                        ],
-                      ),
-                      textAlign: TextAlign.start,
-                    ),
-                    SizedBox(
-                      height: 1.h,
-                    ),
-                    Container(
-                      margin: EdgeInsets.symmetric(
-                        horizontal: 1.w,
-                      ),
-                      height: 5.5.h,
-                      child: TextField(
-                        maxLength: 10,
-                        keyboardType: TextInputType.number,
-                        controller: transit,
-                        decoration: InputDecoration(
-                          counterStyle: const TextStyle(
-                            height: double.minPositive,
-                          ),
-                          counterText: "",
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10.0),
-                            borderSide: const BorderSide(
-                              color: Constants.fourthColor,
-                            ),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10.0),
-                            borderSide: const BorderSide(
-                              color: Constants.fourthColor,
-                            ),
-                          ),
-                          enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10.0),
-                            borderSide: const BorderSide(
-                              color: Constants.fourthColor,
-                            ),
-                          ),
-                          filled: true,
-                          hintStyle: TextStyle(
-                            color: Colors.grey[800],
-                            fontSize: 15.sp,
-                          ),
-                          hintText: "Please enter your transit no",
-                          fillColor: Constants.bgColor,
-// prefixIcon: const Icon(
-//   Icons.phone,
-//   color: Constants.fourthColor,
-// ),
-                        ),
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              color: Constants.fourthColor,
-                              fontSize: 15.sp,
-                            ),
-                        textAlign: TextAlign.start,
-                      ),
-                    ),
-                    SizedBox(
-                      height: 1.h,
-                    ),
-                    AutoSizeText.rich(
-                      TextSpan(
-                        children: [
-                          TextSpan(
-                            text: "Institution Number",
-                            style:
-                                Theme.of(context).textTheme.bodySmall?.copyWith(
-                                      color: Colors.black87,
-                                      fontSize: 16.sp,
-// fontWeight: FontWeight.bold,
-                                    ),
-                          ),
-                        ],
-                      ),
-                      textAlign: TextAlign.start,
-                    ),
-                    SizedBox(
-                      height: 1.h,
-                    ),
-                    Container(
-                      margin: EdgeInsets.symmetric(
-                        horizontal: 1.w,
-                      ),
-                      height: 5.5.h,
-                      child: TextField(
-                        maxLength: 10,
-                        keyboardType: TextInputType.number,
-                        controller: institution,
-                        decoration: InputDecoration(
-                          counterStyle: const TextStyle(
-                            height: double.minPositive,
-                          ),
-                          counterText: "",
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10.0),
-                            borderSide: const BorderSide(
-                              color: Constants.fourthColor,
-                            ),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10.0),
-                            borderSide: const BorderSide(
-                              color: Constants.fourthColor,
-                            ),
-                          ),
-                          enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10.0),
-                            borderSide: const BorderSide(
-                              color: Constants.fourthColor,
-                            ),
-                          ),
-                          filled: true,
-                          hintStyle: TextStyle(
-                            color: Colors.grey[800],
-                            fontSize: 15.sp,
-                          ),
-                          hintText: "Please enter your transit no",
-                          fillColor: Constants.bgColor,
-// prefixIcon: const Icon(
-//   Icons.phone,
-//   color: Constants.fourthColor,
-// ),
-                        ),
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              color: Constants.fourthColor,
-                              fontSize: 15.sp,
-                            ),
-                        textAlign: TextAlign.start,
-                      ),
-                    ),
-                  ],
-                ),
+              BankDetailsCard(
+                bank: bank,
+                transit: transit,
+                institution: institution,
+                bank_names: bank_names,
+                updateBankName: (String val) {
+                  setState(() {
+                    bank_name = val;
+                  });
+                },
+                loadProfile: () {
+                  fetchPersonalDetails();
+                },
               ),
-              SizedBox(
-                height: 2.h,
-              ),
-
               SizedBox(
                 height: 3.h,
               ),
-              Container(
-                margin: EdgeInsets.symmetric(
-                  horizontal: 1.w,
-                ),
-                height: 5.5.h,
-                width: double.infinity,
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Constants.secondaryColor,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12), // <-- Radius
-                    ),
-                  ),
-                  onPressed: () {
-                    if (firstname.text.isNotEmpty &&
-                        lastname.text.isNotEmpty &&
-                        dob != null &&
-                        address.text.isNotEmpty &&
-                        province.text.isNotEmpty &&
-                        postalcode.text.isNotEmpty &&
-                        password.text.isNotEmpty &&
-                        confirmPassword.text.isNotEmpty) {
-                      if (validatePassword(password.text)) {
-                        if (password.text == confirmPassword.text) {
-                          var snackBar = SnackBar(
-                            backgroundColor: Constants.seventhColor,
-                            content: Text(
-                              'Profile Updated Successfully',
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .bodySmall
-                                  ?.copyWith(
-                                    fontSize: 17.sp,
-                                    color: Constants.primaryColor,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                            ),
-                          );
-                          ScaffoldMessenger.of(context).showSnackBar(snackBar);
-                          Navigation.instance
-                              .navigate(Routes.profileVerificationScreen);
-                        } else {
-                          var snackBar = SnackBar(
-                            backgroundColor: Constants.secondaryColor,
-                            content: Text(
-                              'Please ensure both passwords match',
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .bodySmall
-                                  ?.copyWith(
-                                    fontSize: 17.sp,
-                                    color: Constants.primaryColor,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                            ),
-                          );
-                          ScaffoldMessenger.of(context).showSnackBar(snackBar);
-                        }
-                      } else {
-                        var snackBar = SnackBar(
-                          backgroundColor: Constants.secondaryColor,
-                          content: Text(
-                            'Please ensure to enter a valid password',
-                            style:
-                                Theme.of(context).textTheme.bodySmall?.copyWith(
-                                      fontSize: 17.sp,
-                                      color: Constants.primaryColor,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                          ),
-                        );
-                        ScaffoldMessenger.of(context).showSnackBar(snackBar);
-                      }
-                    } else {
-                      var snackBar = SnackBar(
-                        backgroundColor: Constants.secondaryColor,
-                        content: Text(
-                          'Please enter all the information',
-                          style:
-                              Theme.of(context).textTheme.bodySmall?.copyWith(
-                                    fontSize: 17.sp,
-                                    color: Constants.primaryColor,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                        ),
-                      );
-                      ScaffoldMessenger.of(context).showSnackBar(snackBar);
-                    }
-                  },
-                  child: Text(
-                    "Update Profile",
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          fontSize: 17.sp,
-                          color: Constants.primaryColor,
-                          fontWeight: FontWeight.bold,
-                        ),
-                  ),
-                ),
-              ),
-              SizedBox(
-                height: 1.h,
-              ),
+
+              // Container(
+              //   margin: EdgeInsets.symmetric(
+              //     horizontal: 1.w,
+              //   ),
+              //   height: 5.5.h,
+              //   width: double.infinity,
+              //   child: ElevatedButton(
+              //     style: ElevatedButton.styleFrom(
+              //       backgroundColor: Constants.secondaryColor,
+              //       shape: RoundedRectangleBorder(
+              //         borderRadius: BorderRadius.circular(12), // <-- Radius
+              //       ),
+              //     ),
+              //     onPressed: () {
+              //       if (firstname.text.isNotEmpty &&
+              //           lastname.text.isNotEmpty &&
+              //           dob != null &&
+              //           address.text.isNotEmpty &&
+              //           province.text.isNotEmpty &&
+              //           postalcode.text.isNotEmpty &&
+              //           password.text.isNotEmpty &&
+              //           confirmPassword.text.isNotEmpty) {
+              //         if (validatePassword(password.text)) {
+              //           if (password.text == confirmPassword.text) {
+              //             var snackBar = SnackBar(
+              //               backgroundColor: Constants.seventhColor,
+              //               content: Text(
+              //                 'Profile Updated Successfully',
+              //                 style: Theme.of(context)
+              //                     .textTheme
+              //                     .bodySmall
+              //                     ?.copyWith(
+              //                       fontSize: 17.sp,
+              //                       color: Constants.primaryColor,
+              //                       fontWeight: FontWeight.bold,
+              //                     ),
+              //               ),
+              //             );
+              //             ScaffoldMessenger.of(context).showSnackBar(snackBar);
+              //             Navigation.instance
+              //                 .navigate(Routes.profileVerificationScreen);
+              //           } else {
+              //             var snackBar = SnackBar(
+              //               backgroundColor: Constants.secondaryColor,
+              //               content: Text(
+              //                 'Please ensure both passwords match',
+              //                 style: Theme.of(context)
+              //                     .textTheme
+              //                     .bodySmall
+              //                     ?.copyWith(
+              //                       fontSize: 17.sp,
+              //                       color: Constants.primaryColor,
+              //                       fontWeight: FontWeight.bold,
+              //                     ),
+              //               ),
+              //             );
+              //             ScaffoldMessenger.of(context).showSnackBar(snackBar);
+              //           }
+              //         } else {
+              //           var snackBar = SnackBar(
+              //             backgroundColor: Constants.secondaryColor,
+              //             content: Text(
+              //               'Please ensure to enter a valid password',
+              //               style:
+              //                   Theme.of(context).textTheme.bodySmall?.copyWith(
+              //                         fontSize: 17.sp,
+              //                         color: Constants.primaryColor,
+              //                         fontWeight: FontWeight.bold,
+              //                       ),
+              //             ),
+              //           );
+              //           ScaffoldMessenger.of(context).showSnackBar(snackBar);
+              //         }
+              //       } else {
+              //         var snackBar = SnackBar(
+              //           backgroundColor: Constants.secondaryColor,
+              //           content: Text(
+              //             'Please enter all the information',
+              //             style:
+              //                 Theme.of(context).textTheme.bodySmall?.copyWith(
+              //                       fontSize: 17.sp,
+              //                       color: Constants.primaryColor,
+              //                       fontWeight: FontWeight.bold,
+              //                     ),
+              //           ),
+              //         );
+              //         ScaffoldMessenger.of(context).showSnackBar(snackBar);
+              //       }
+              //     },
+              //     child: Text(
+              //       "Update Profile",
+              //       style: Theme.of(context).textTheme.bodySmall?.copyWith(
+              //             fontSize: 17.sp,
+              //             color: Constants.primaryColor,
+              //             fontWeight: FontWeight.bold,
+              //           ),
+              //     ),
+              //   ),
+              // ),
+              // SizedBox(
+              //   height: 1.h,
+              // ),
             ],
           ),
         ),
@@ -1942,34 +290,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     final ImagePicker picker = ImagePicker();
     final XFile? image = await picker.pickImage(source: ImageSource.gallery);
     onTap(image!.path);
-  }
-
-  Future<void> _onSearchChanged() async {
-    print("Searching... ${address.text}");
-    if (address.text.isEmpty) {
-      setState(() {
-        _suggestions = [];
-      });
-      return;
-    }
-
-    try {
-// List<Location> locations = await locationFromAddress(address.text);
-      List<Location> locations = await locationFromAddress(address.text);
-      print(
-          "Searching... Locations ${locations[0].latitude} ${locations[0].longitude}");
-      List<Placemark> placemarks = await placemarkFromCoordinates(
-          locations[0].latitude, locations[0].longitude);
-      setState(() {
-        _suggestions = placemarks;
-      });
-    } catch (e) {
-      print(e);
-      setState(() {
-        _suggestions = [];
-      });
-// Handle error (e.g., show a snackbar)
-    }
   }
 
   bool validatePassword(String password) {
@@ -2009,5 +329,59 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
   bool hasMinLength(String password) {
     return password.length >= 8;
+  }
+
+  void loadPersonalDetails() {
+    final data = Provider.of<Repository>(context, listen: false).profile;
+    firstname.text = data?.firstName ?? "";
+    lastname.text = data?.lastName ?? "";
+    address.text = data?.full_address ?? "";
+    province.text = data?.province ?? "";
+    postalcode.text = data?.postal_code ?? "";
+    doc_pic = data?.address_proof ?? "";
+    profile_pic = data?.profile_pic ?? "";
+    city = data?.city ?? "";
+    debugPrint(
+        "data?.address_proof ${data?.address_proof}\n${data?.profile_pic}");
+    setState(() {});
+  }
+
+  Future<void> fetchPersonalDetails() async {
+    final response = await ApiProvider.instance.getMyDetails();
+    if (response.success ?? false) {
+      Provider.of<Repository>(context, listen: false)
+          .setProfileModel(response.data!);
+      loadPersonalDetails();
+      loadDrivingDetails();
+      loadGSTDetails();
+      loadBankDetails();
+      Navigation.instance.goBack();
+    }
+  }
+
+  void loadDrivingDetails() {
+    final data = Provider.of<Repository>(context, listen: false).profile;
+    dlNumber.text = data?.driving_licence_no ?? "";
+    dl_url = data?.driving_licence_proof ?? "";
+    debugPrint("db ${data?.driving_licence_proof ?? ""}");
+    setState(() {});
+  }
+
+  void loadGSTDetails() {
+    final data = Provider.of<Repository>(context, listen: false).profile;
+    gst.text = data?.gst_no ?? "";
+    qst.text = data?.qst_no ?? "";
+    gst_pic = data?.gst_image ?? "";
+    qst_pic = data?.qst_image ?? "";
+    setState(() {});
+  }
+
+  void loadBankDetails() {
+    final data = Provider.of<Repository>(context, listen: false).profile;
+    bank.text = data?.account_number ?? "";
+    transit.text = data?.transit_number ?? "";
+    institution.text = data?.institution_number ?? "";
+    bank_name = data?.bank_name ?? "";
+    setState(() {});
   }
 }

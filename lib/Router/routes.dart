@@ -25,6 +25,7 @@ class Routes {
   static const profileUpdatePersonalDetailsScreen = "/profile_personal_update_details";
   static const profileUpdateBankDetailsScreen = "/profile_update_bank_details";
   static const profileUpdateTaxDetailsScreen = "/profile_update_tax_details";
+  static const profileVerifyEmailScreen = "/profile_verify_email";
   static const getOrderScreen = "/get_order";
   static const myEarningsScreen = "/my_earnings";
 // static const selectedLanguageScreen = "/selected_language";

@@ -10,6 +10,7 @@ import '../../Constants/constants.dart';
 import '../../Model/pass_arguments.dart';
 import '../../Navigation/Navigate.dart';
 import '../../Router/routes.dart';
+import '../../main.dart';
 
 class OTPVerificationPage extends StatefulWidget {
   // const OTPVerificationPage({super.key, required this.mobile});
@@ -147,7 +148,6 @@ class _OTPVerificationPageState extends State<OTPVerificationPage> {
                             //runs when a code is typed in
                             onCodeChanged: (String code) {
                               //handle validation or checks here
-
                             },
                             //runs when every textfield is filled
                             onSubmit: (String code) {
@@ -215,7 +215,9 @@ class _OTPVerificationPageState extends State<OTPVerificationPage> {
                                 ),
                                 TextSpan(
                                   recognizer: TapGestureRecognizer()
-                                    ..onTap = () {},
+                                    ..onTap = () {
+                                      resendOTP();
+                                    },
                                   text: "Resent",
                                   style: Theme.of(context)
                                       .textTheme
@@ -257,6 +259,36 @@ class _OTPVerificationPageState extends State<OTPVerificationPage> {
           backgroundColor: Constants.secondaryColor,
           content: Text(
             'Enter a valid OTP',
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  fontSize: 17.sp,
+                  color: Constants.primaryColor,
+                  fontWeight: FontWeight.bold,
+                ),
+          ));
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    }
+  }
+
+  void resendOTP() async {
+    final response = await ApiProvider.instance
+        .driverSendOtp(convertPhoneNumber(widget.info!.mobile));
+    if (response.success ?? false) {
+      var snackBar = SnackBar(
+          backgroundColor: Constants.secondaryColor,
+          content: Text(
+            response.message ?? 'OTP resend successfully',
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+              fontSize: 17.sp,
+              color: Constants.primaryColor,
+              fontWeight: FontWeight.bold,
+            ),
+          ));
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    } else {
+      var snackBar = SnackBar(
+          backgroundColor: Constants.secondaryColor,
+          content: Text(
+            response.message ?? 'Something went wrong',
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
                   fontSize: 17.sp,
                   color: Constants.primaryColor,

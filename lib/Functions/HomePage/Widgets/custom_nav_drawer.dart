@@ -11,11 +11,15 @@ import '../../../Constants/constants.dart';
 import '../../../Navigation/Navigate.dart';
 import '../../../Router/routes.dart';
 
-class CustomNavigationDrawer extends StatelessWidget {
-  const CustomNavigationDrawer({
-    super.key,
-  });
+class CustomNavigationDrawer extends StatefulWidget {
+  const CustomNavigationDrawer({super.key});
 
+  @override
+  State<CustomNavigationDrawer> createState() => _CustomNavigationDrawerState();
+}
+
+class _CustomNavigationDrawerState extends State<CustomNavigationDrawer> {
+  bool isExpended = false;
   @override
   Widget build(BuildContext context) {
     return NavigationDrawer(
@@ -70,15 +74,16 @@ class CustomNavigationDrawer extends StatelessWidget {
           ),
         ),
         ListTile(
-          leading: const Icon(
+          leading: Icon(
             Icons.account_circle_rounded,
             color: Constants.primaryColor,
+            size: 23.sp,
           ),
           title: Text(
             "Profile",
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
                   color: Constants.primaryColor,
-                  fontSize: 16.sp,
+                  fontSize: 18.sp,
                   fontWeight: FontWeight.bold,
                 ),
           ),
@@ -93,16 +98,91 @@ class CustomNavigationDrawer extends StatelessWidget {
             thickness: 0.04.h,
           ),
         ),
+        ExpansionTile(
+          onExpansionChanged: (val) {
+            setState(() {
+              isExpended = !isExpended;
+            });
+          },
+          leading: Icon(
+            Icons.add_shopping_cart,
+            color: Constants.primaryColor,
+            size: 23.sp,
+          ),
+          trailing: Icon(
+            !isExpended?Icons.arrow_drop_down:Icons.arrow_drop_up,
+            color: Constants.primaryColor,
+          ),
+          title: Text(
+            "Orders",
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: Constants.primaryColor,
+                  fontSize: 18.sp,
+                  fontWeight: FontWeight.bold,
+                ),
+          ),
+          children: [
+            Container(
+              margin: EdgeInsets.only(left: 8.w),
+              child: ListTile(
+                title: Text(
+                  "New Orders",
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: Constants.primaryColor,
+                        fontSize: 15.sp,
+                        fontWeight: FontWeight.bold,
+                      ),
+                ),
+                onTap: () {
+                  Navigation.instance.navigate(Routes.homeScreen);
+                },
+              ),
+            ),
+            Container(
+              margin: EdgeInsets.only(left: 8.w),
+              child: ListTile(
+                title: Text(
+                  "Upcoming Orders",
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: Constants.primaryColor,
+                        fontSize: 15.sp,
+                        fontWeight: FontWeight.bold,
+                      ),
+                ),
+                onTap: () {
+                  Navigation.instance.navigate(Routes.homeScreen);
+                },
+              ),
+            ),
+            Container(
+              margin: EdgeInsets.only(left: 8.w),
+              child: ListTile(
+                title: Text(
+                  "Inprocess Orders",
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: Constants.primaryColor,
+                        fontSize: 15.sp,
+                        fontWeight: FontWeight.bold,
+                      ),
+                ),
+                onTap: () {
+                  Navigation.instance.navigate(Routes.homeScreen);
+                },
+              ),
+            ),
+          ],
+        ),
         ListTile(
-          leading: const Icon(
+          leading: Icon(
             Icons.wallet,
             color: Constants.primaryColor,
+            size: 23.sp,
           ),
           title: Text(
             "My Earnings",
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
                   color: Constants.primaryColor,
-                  fontSize: 16.sp,
+                  fontSize: 18.sp,
                   fontWeight: FontWeight.bold,
                 ),
           ),
@@ -118,20 +198,21 @@ class CustomNavigationDrawer extends StatelessWidget {
           ),
         ),
         ListTile(
-          leading: const Icon(
+          leading: Icon(
             Icons.phone,
             color: Constants.primaryColor,
+            size: 23.sp,
           ),
           title: Text(
             "Contact Us",
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
                   color: Constants.primaryColor,
-                  fontSize: 16.sp,
+                  fontSize: 18.sp,
                   fontWeight: FontWeight.bold,
                 ),
           ),
           onTap: () {
-            Navigation.instance.navigate(Routes.profileScreen);
+            // Navigation.instance.navigate(Routes.profileScreen);
           },
         ),
         SizedBox(
@@ -142,20 +223,21 @@ class CustomNavigationDrawer extends StatelessWidget {
           ),
         ),
         ListTile(
-          leading: const Icon(
+          leading: Icon(
             Icons.note,
             color: Constants.primaryColor,
+            size: 23.sp,
           ),
           title: Text(
             "Privacy Policy",
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
                   color: Constants.primaryColor,
-                  fontSize: 16.sp,
+                  fontSize: 18.sp,
                   fontWeight: FontWeight.bold,
                 ),
           ),
           onTap: () {
-            Navigation.instance.navigate(Routes.profileScreen);
+            // Navigation.instance.navigate(Routes.profileScreen);
           },
         ),
         SizedBox(
@@ -166,20 +248,21 @@ class CustomNavigationDrawer extends StatelessWidget {
           ),
         ),
         ListTile(
-          leading: const Icon(
+          leading: Icon(
             Icons.security,
             color: Constants.primaryColor,
+            size: 23.sp,
           ),
           title: Text(
             "Security",
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
                   color: Constants.primaryColor,
-                  fontSize: 16.sp,
+                  fontSize: 18.sp,
                   fontWeight: FontWeight.bold,
                 ),
           ),
           onTap: () {
-            Navigation.instance.navigate(Routes.profileScreen);
+            // Navigation.instance.navigate(Routes.profileScreen);
           },
         ),
         SizedBox(
@@ -190,20 +273,21 @@ class CustomNavigationDrawer extends StatelessWidget {
           ),
         ),
         ListTile(
-          leading: const Icon(
+          leading: Icon(
             Icons.delete,
             color: Constants.primaryColor,
+            size: 23.sp,
           ),
           title: Text(
             "Delete Request",
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
                   color: Constants.primaryColor,
-                  fontSize: 16.sp,
+                  fontSize: 18.sp,
                   fontWeight: FontWeight.bold,
                 ),
           ),
           onTap: () {
-            Navigation.instance.navigate(Routes.profileScreen);
+            // Navigation.instance.navigate(Routes.profileScreen);
           },
         ),
         SizedBox(
@@ -214,15 +298,16 @@ class CustomNavigationDrawer extends StatelessWidget {
           ),
         ),
         ListTile(
-          leading: const Icon(
+          leading: Icon(
             Icons.login,
             color: Constants.primaryColor,
+            size: 23.sp,
           ),
           title: Text(
             "Logout",
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
                   color: Constants.primaryColor,
-                  fontSize: 16.sp,
+                  fontSize: 18.sp,
                   // fontWeight: FontWeight.bold,
                 ),
           ),

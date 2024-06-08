@@ -30,6 +30,7 @@ import '../Functions/UpdateTaxInfo/update_tax_info.dart';
 import '../Functions/VerificationPending/verification_pending_screen.dart';
 import '../Functions/Verified/verified_screen.dart';
 import '../Functions/Verify/pickup_verify_screen.dart';
+import '../Functions/VerifyEmail/verify_email_screen.dart';
 import '../Model/pass_arguments.dart';
 import '../PickAddress/pick_address.dart';
 import '../ProfileCreate/profile_create_screen.dart';
@@ -133,6 +134,8 @@ Route<dynamic> generateRoute(RouteSettings settings) {
       return FadeTransitionPageRouteBuilder(page: const UpdateTaxInfoDetails());
     case Routes.profileUpdatePersonalDetailsScreen:
       return FadeTransitionPageRouteBuilder(page: const UpdateProfileDetails());
+    case Routes.profileVerifyEmailScreen:
+      return FadeTransitionPageRouteBuilder(page: const VerifyEmailScreen());
     default:
       return FadeTransitionPageRouteBuilder(
         page: Container(),

@@ -24,9 +24,9 @@ class _IntroSlidesState extends State<IntroSlides> {
     Future.delayed(Duration.zero,(){
       listContentConfig.add(
         ContentConfig(
-          title: "Accept a Job",
+          title: "Route Tracking",
           description:
-          "Allow miles wound place the leave had. To sitting subject no improve studied limited",
+          "Optimize routes, and ensuring customers are expecting you upon arrival.",
           pathImage: Assets.intro1,
           backgroundColor: Constants.bgColor,
           styleTitle: Theme.of(context).textTheme.bodySmall?.copyWith(
@@ -43,9 +43,9 @@ class _IntroSlidesState extends State<IntroSlides> {
       );
       listContentConfig.add(
         ContentConfig(
-          title: "Tracking Realtime",
+          title: "Accept a job",
           description:
-          "Allow miles wound place the leave had. To sitting subject no improve studied limited",
+          "Seamlessly accept delivery jobs with a single tap and start earning.",
           pathImage: Assets.intro2,
           backgroundColor: Constants.bgColor,
           styleTitle: Theme.of(context).textTheme.bodySmall?.copyWith(
@@ -64,7 +64,7 @@ class _IntroSlidesState extends State<IntroSlides> {
         ContentConfig(
           title: "Earn Money",
           description:
-          "Allow miles wound place the leave had. To sitting subject no improve studied limited",
+          "Maximize your earnings with flexible work hours and consistent pay.",
           pathImage: Assets.intro3,
           backgroundColor: Constants.bgColor,
           styleTitle: Theme.of(context).textTheme.bodySmall?.copyWith(

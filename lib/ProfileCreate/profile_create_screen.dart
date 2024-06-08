@@ -983,23 +983,23 @@ class _CreateProfileScreenState extends State<CreateProfileScreen> {
                                           if (password.text ==
                                               confirmPassword.text) {
                                             if (isAgreed) {
-                                              startRegistration(
-                                                widget.firstname,
-                                                widget.lastname,
-                                                widget.email,
-                                                widget.mobile,
-                                                widget.are_you_a,
-                                                password.text,
-                                                address.text,
-                                                province.text,
-                                                currentSuggestion?.city??"",
-                                                postalcode.text,
-                                                currentSuggestion?.latitude??0,
-                                                currentSuggestion?.longitude??0,
-                                              );
-                                              // Navigation.instance.navigate(
-                                              //   Routes.profileVerificationScreen,
+                                              // startRegistration(
+                                              //   widget.firstname,
+                                              //   widget.lastname,
+                                              //   widget.email,
+                                              //   widget.mobile,
+                                              //   widget.are_you_a,
+                                              //   password.text,
+                                              //   address.text,
+                                              //   province.text,
+                                              //   currentSuggestion?.city??"",
+                                              //   postalcode.text,
+                                              //   currentSuggestion?.latitude??0,
+                                              //   currentSuggestion?.longitude??0,
                                               // );
+                                              Navigation.instance.navigate(
+                                                Routes.profileVerificationScreen,
+                                              );
                                             } else {
                                               var snackBar = SnackBar(
                                                 backgroundColor:
@@ -1302,14 +1302,14 @@ class _CreateProfileScreenState extends State<CreateProfileScreen> {
       longitude,
     );
     if(response.success??false){
-      Navigation.instance.navigate(
-        Routes.profileVerificationScreen,
+      Navigation.instance.navigateAndRemoveUntil(
+        Routes.loginScreen,
       );
     }else{
       var snackBar = SnackBar(
           backgroundColor: Constants.secondaryColor,
           content: Text(
-            'Please Ensure All the information is correct',
+            response.message??'Something Went Wrong',
             style: Theme.of(context)
                 .textTheme
                 .bodySmall

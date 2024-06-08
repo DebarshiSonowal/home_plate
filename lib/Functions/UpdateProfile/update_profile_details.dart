@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:http/http.dart' as http;
 import 'package:auto_size_text/auto_size_text.dart';
@@ -13,11 +14,16 @@ import 'package:home_plate/Api/api_provider.dart';
 import 'package:home_plate/Storage/CustomStorage.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
+
 // import 'package:pluto_grid/pluto_grid.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 
+import '../../Constants/common_function.dart';
 import '../../Constants/constants.dart';
 import '../../Model/suggestion.dart';
+import '../../Navigation/Navigate.dart';
+import '../../Repository/repository.dart';
 
 class UpdateProfileDetails extends StatefulWidget {
   const UpdateProfileDetails({super.key});
@@ -27,28 +33,39 @@ class UpdateProfileDetails extends StatefulWidget {
 }
 
 class _UpdateProfileDetailsState extends State<UpdateProfileDetails> {
-
   final firstname = TextEditingController();
   final lastname = TextEditingController();
   final province = TextEditingController();
   final postalcode = TextEditingController();
   final address = TextEditingController();
-  String city ="";
+  String city = "";
+  String? doc_pic = "", profile_pic = "";
   List<Suggestion> _suggestions = [];
   Suggestion? currentSuggestion;
   String? dob = "Please select your date of birth";
-  File? address_proof,profile_photo;
+  File? address_proof, profile_photo;
+
+  @override
+  void initState() {
+    super.initState();
+    Future.delayed(const Duration(seconds: 0), () {
+      loadPersonalDetails();
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
+    final data = Provider.of<Repository>(context, listen: false).profile;
+    final int status = data?.status ?? 0;
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Constants.primaryColor,
         title: AutoSizeText(
           "Update Personal Details",
           style: Theme.of(context).textTheme.bodySmall?.copyWith(
-            color: Constants.secondaryColor,
-            fontSize: 18.sp,
-          ),
+                color: Constants.secondaryColor,
+                fontSize: 18.sp,
+              ),
         ),
       ),
       body: Container(
@@ -69,12 +86,11 @@ class _UpdateProfileDetailsState extends State<UpdateProfileDetails> {
                   children: [
                     TextSpan(
                       text: "First Name",
-                      style:
-                      Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: Colors.black87,
-                        fontSize: 16.sp,
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: Colors.black87,
+                            fontSize: 16.sp,
 // fontWeight: FontWeight.bold,
-                      ),
+                          ),
                     ),
                   ],
                 ),
@@ -127,9 +143,9 @@ class _UpdateProfileDetailsState extends State<UpdateProfileDetails> {
 // ),
                   ),
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: Constants.fourthColor,
-                    fontSize: 15.sp,
-                  ),
+                        color: Constants.fourthColor,
+                        fontSize: 15.sp,
+                      ),
                   textAlign: TextAlign.start,
                 ),
               ),
@@ -141,12 +157,11 @@ class _UpdateProfileDetailsState extends State<UpdateProfileDetails> {
                   children: [
                     TextSpan(
                       text: "Last Name",
-                      style:
-                      Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: Colors.black87,
-                        fontSize: 16.sp,
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: Colors.black87,
+                            fontSize: 16.sp,
 // fontWeight: FontWeight.bold,
-                      ),
+                          ),
                     ),
                   ],
                 ),
@@ -200,102 +215,98 @@ class _UpdateProfileDetailsState extends State<UpdateProfileDetails> {
 // ),
                   ),
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: Constants.fourthColor,
-                    fontSize: 15.sp,
-                  ),
+                        color: Constants.fourthColor,
+                        fontSize: 15.sp,
+                      ),
                   textAlign: TextAlign.start,
                 ),
               ),
-              SizedBox(
-                height: 2.h,
-              ),
-              AutoSizeText.rich(
-                TextSpan(
-                  children: [
-                    TextSpan(
-                      text: "Date of Birth",
-                      style:
-                      Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: Colors.black87,
-                        fontSize: 16.sp,
-// fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ],
-                ),
-                textAlign: TextAlign.start,
-              ),
-              SizedBox(
-                height: 1.h,
-              ),
-              GestureDetector(
-                onTap: () {
-                  BottomPicker.date(
-                    pickerTitle: Text(
-                      'Set your Birthday',
-                      style:
-                      Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: Constants.secondaryColor,
-                        fontSize: 15.sp,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    dateOrder: DatePickerDateOrder.dmy,
-                    initialDateTime: DateTime(1996, 10, 22),
-                    maxDateTime: DateTime(1998),
-                    minDateTime: DateTime(1980),
-                    pickerTextStyle:
-                    Theme.of(context).textTheme.bodySmall!.copyWith(
-                      color: Constants.fourthColor,
-                      fontSize: 15.sp,
-                      fontWeight: FontWeight.bold,
-                    ),
-                    buttonSingleColor: Constants.seventhColor,
-                    onChange: (index) {
-                      print(index);
-                    },
-                    onSubmit: (index) {
-                      setState(() {
-                        dob = DateFormat("dd-MMM-yyyy").format(
-                            DateFormat("yyyy-MM-dd").parse(
-                                DateTime.parse(index.toString())
-                                    .toString()));
-                      });
-                    },
-                    bottomPickerTheme: BottomPickerTheme.plumPlate,
-                  ).show(context);
-                },
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: Constants.primaryColor,
-                    border: Border.all(
-                      color: Constants.fourthColor,
-
-// borderSide: const BorderSide(
-                    ),
-                    borderRadius: BorderRadius.circular(10.0),
-                  ),
-                  margin: EdgeInsets.symmetric(
-                    horizontal: 1.w,
-                  ),
-                  height: 5.5.h,
-                  width: double.infinity,
-                  padding: EdgeInsets.symmetric(
-                    horizontal: 2.w,
-                    vertical: 1.2.h,
-                  ),
-                  child: Text(
-                    dob ?? "Please select your date of birth",
-                    style:
-                    Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: Colors.black87,
-                      fontSize: 15.sp,
-// fontWeight: FontWeight.bold,
-                    ),
-                    textAlign: TextAlign.start,
-                  ),
-                ),
-              ),
+              // SizedBox(
+              //   height: 2.h,
+              // ),
+//               AutoSizeText.rich(
+//                 TextSpan(
+//                   children: [
+//                     TextSpan(
+//                       text: "Date of Birth",
+//                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
+//                             color: Colors.black87,
+//                             fontSize: 16.sp,
+// // fontWeight: FontWeight.bold,
+//                           ),
+//                     ),
+//                   ],
+//                 ),
+//                 textAlign: TextAlign.start,
+//               ),
+//               SizedBox(
+//                 height: 1.h,
+//               ),
+//               GestureDetector(
+//                 onTap: () {
+//                   BottomPicker.date(
+//                     pickerTitle: Text(
+//                       'Set your Birthday',
+//                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
+//                             color: Constants.secondaryColor,
+//                             fontSize: 15.sp,
+//                             fontWeight: FontWeight.bold,
+//                           ),
+//                     ),
+//                     dateOrder: DatePickerDateOrder.dmy,
+//                     initialDateTime: DateTime(1996, 10, 22),
+//                     maxDateTime: DateTime(1998),
+//                     minDateTime: DateTime(1980),
+//                     pickerTextStyle:
+//                         Theme.of(context).textTheme.bodySmall!.copyWith(
+//                               color: Constants.fourthColor,
+//                               fontSize: 15.sp,
+//                               fontWeight: FontWeight.bold,
+//                             ),
+//                     buttonSingleColor: Constants.seventhColor,
+//                     onChange: (index) {
+//                       print(index);
+//                     },
+//                     onSubmit: (index) {
+//                       setState(() {
+//                         dob = DateFormat("dd-MMM-yyyy").format(
+//                             DateFormat("yyyy-MM-dd").parse(
+//                                 DateTime.parse(index.toString()).toString()));
+//                       });
+//                     },
+//                     bottomPickerTheme: BottomPickerTheme.plumPlate,
+//                   ).show(context);
+//                 },
+//                 child: Container(
+//                   decoration: BoxDecoration(
+//                     color: Constants.primaryColor,
+//                     border: Border.all(
+//                       color: Constants.fourthColor,
+//
+// // borderSide: const BorderSide(
+//                     ),
+//                     borderRadius: BorderRadius.circular(10.0),
+//                   ),
+//                   margin: EdgeInsets.symmetric(
+//                     horizontal: 1.w,
+//                   ),
+//                   height: 5.5.h,
+//                   width: double.infinity,
+//                   padding: EdgeInsets.symmetric(
+//                     horizontal: 2.w,
+//                     vertical: 1.2.h,
+//                   ),
+//                   child: Text(
+//                     dob ?? "Please select your date of birth",
+//                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
+//                           color: Colors.black87,
+//                           fontSize: 15.sp,
+// // fontWeight: FontWeight.bold,
+//                         ),
+//                     textAlign: TextAlign.start,
+//                   ),
+//                 ),
+//               ),
               SizedBox(
                 height: 2.h,
               ),
@@ -304,12 +315,11 @@ class _UpdateProfileDetailsState extends State<UpdateProfileDetails> {
                   children: [
                     TextSpan(
                       text: "Address",
-                      style:
-                      Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: Colors.black87,
-                        fontSize: 16.sp,
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: Colors.black87,
+                            fontSize: 16.sp,
 // fontWeight: FontWeight.bold,
-                      ),
+                          ),
                     ),
                   ],
                 ),
@@ -369,50 +379,41 @@ class _UpdateProfileDetailsState extends State<UpdateProfileDetails> {
 // ),
                   ),
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: Constants.fourthColor,
-                    fontSize: 15.sp,
-                  ),
+                        color: Constants.fourthColor,
+                        fontSize: 15.sp,
+                      ),
                   textAlign: TextAlign.start,
                 ),
               ),
               _suggestions.isNotEmpty
                   ? Card(
-                elevation: 4,
-                child: Container(
-                  color: Constants.primaryColor,
-                  child: ListView.separated(
-                    shrinkWrap: true,
-                    itemCount: _suggestions.length,
-                    itemBuilder: (context, index) {
-                      final suggestion =
-                      _suggestions[index];
-                      return ListTile(
-                        title: Text(suggestion
-                            .description
-                            .trim() ??
-                            ''),
-                        // Text(''),
-                        subtitle: Text(
-                            suggestion.city?.trim() ??
-                                ''),
-                        // suggestion.locality ?? ''),
-                        onTap: () {
-                          // Handle location selection
-                          _fetchPlaceDetails(
-                              suggestion);
+                      elevation: 4,
+                      child: Container(
+                        color: Constants.primaryColor,
+                        child: ListView.separated(
+                          shrinkWrap: true,
+                          itemCount: _suggestions.length,
+                          itemBuilder: (context, index) {
+                            final suggestion = _suggestions[index];
+                            return ListTile(
+                              title: Text(suggestion.description.trim() ?? ''),
+                              // Text(''),
+                              subtitle: Text(suggestion.city?.trim() ?? ''),
+                              // suggestion.locality ?? ''),
+                              onTap: () {
+                                // Handle location selection
+                                _fetchPlaceDetails(suggestion);
 
-                          // Clear suggestions
-                        },
-                      );
-                    },
-                    separatorBuilder:
-                        (BuildContext context,
-                        int index) {
-                      return const Divider();
-                    },
-                  ),
-                ),
-              )
+                                // Clear suggestions
+                              },
+                            );
+                          },
+                          separatorBuilder: (BuildContext context, int index) {
+                            return const Divider();
+                          },
+                        ),
+                      ),
+                    )
                   : Container(),
               SizedBox(
                 height: 2.h,
@@ -422,12 +423,11 @@ class _UpdateProfileDetailsState extends State<UpdateProfileDetails> {
                   children: [
                     TextSpan(
                       text: "Province",
-                      style:
-                      Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: Colors.black87,
-                        fontSize: 16.sp,
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: Colors.black87,
+                            fontSize: 16.sp,
 // fontWeight: FontWeight.bold,
-                      ),
+                          ),
                     ),
                   ],
                 ),
@@ -481,9 +481,9 @@ class _UpdateProfileDetailsState extends State<UpdateProfileDetails> {
 // ),
                   ),
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: Constants.fourthColor,
-                    fontSize: 15.sp,
-                  ),
+                        color: Constants.fourthColor,
+                        fontSize: 15.sp,
+                      ),
                   textAlign: TextAlign.start,
                 ),
               ),
@@ -495,11 +495,10 @@ class _UpdateProfileDetailsState extends State<UpdateProfileDetails> {
                   children: [
                     TextSpan(
                       text: "Postal Code",
-                      style:
-                      Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: Colors.black87,
-                        fontSize: 16.sp,
-                      ),
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: Colors.black87,
+                            fontSize: 16.sp,
+                          ),
                     ),
                   ],
                 ),
@@ -546,16 +545,16 @@ class _UpdateProfileDetailsState extends State<UpdateProfileDetails> {
                       fontSize: 15.sp,
                     ),
                     hintText: "Please enter your postal code",
-                    fillColor:Constants.primaryColor,
+                    fillColor: Constants.primaryColor,
 // prefixIcon: const Icon(
 //   Icons.phone,
 //   color: Constants.fourthColor,
 // ),
                   ),
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: Constants.fourthColor,
-                    fontSize: 15.sp,
-                  ),
+                        color: Constants.fourthColor,
+                        fontSize: 15.sp,
+                      ),
                   textAlign: TextAlign.start,
                 ),
               ),
@@ -569,10 +568,10 @@ class _UpdateProfileDetailsState extends State<UpdateProfileDetails> {
                     TextSpan(
                       text: "Document",
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: Colors.black87,
-                        fontSize: 16.sp,
-                        // fontWeight: FontWeight.bold,
-                      ),
+                            color: Colors.black87,
+                            fontSize: 16.sp,
+                            // fontWeight: FontWeight.bold,
+                          ),
                     ),
                   ],
                 ),
@@ -602,10 +601,14 @@ class _UpdateProfileDetailsState extends State<UpdateProfileDetails> {
                       width: double.infinity,
                       child: Center(
                         child: address_proof == null
-                            ? Icon(
-                          Icons.folder,
-                          size: 35.sp,
-                        )
+                            ? (doc_pic?.isEmpty ?? false)
+                                ? Icon(
+                                    Icons.folder,
+                                    size: 35.sp,
+                                  )
+                                : CachedNetworkImage(
+                                    imageUrl: doc_pic ?? "",
+                                  )
                             : Image.file(File(address_proof!.path)),
                       ),
                     ),
@@ -621,10 +624,10 @@ class _UpdateProfileDetailsState extends State<UpdateProfileDetails> {
                     TextSpan(
                       text: "Profile Picture",
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: Colors.black87,
-                        fontSize: 16.sp,
-                        // fontWeight: FontWeight.bold,
-                      ),
+                            color: Colors.black87,
+                            fontSize: 16.sp,
+                            // fontWeight: FontWeight.bold,
+                          ),
                     ),
                   ],
                 ),
@@ -654,10 +657,14 @@ class _UpdateProfileDetailsState extends State<UpdateProfileDetails> {
                       width: double.infinity,
                       child: Center(
                         child: profile_photo == null
-                            ? Icon(
-                          Icons.folder,
-                          size: 35.sp,
-                        )
+                            ? (profile_pic?.isEmpty ?? false)
+                                ? Icon(
+                                    Icons.folder,
+                                    size: 35.sp,
+                                  )
+                                : CachedNetworkImage(
+                                    imageUrl: profile_pic ?? "",
+                                  )
                             : Image.file(File(profile_photo!.path)),
                       ),
                     ),
@@ -668,7 +675,7 @@ class _UpdateProfileDetailsState extends State<UpdateProfileDetails> {
               SizedBox(
                 height: 2.h,
               ),
-              Container(
+              status==2?Container():Container(
                 margin: EdgeInsets.symmetric(
                   horizontal: 1.w,
                 ),
@@ -682,7 +689,10 @@ class _UpdateProfileDetailsState extends State<UpdateProfileDetails> {
                     ),
                   ),
                   onPressed: () {
-                    if (firstname.text.isNotEmpty&&lastname.text.isNotEmpty&&address.text.isNotEmpty&&province.text.isNotEmpty) {
+                    if (firstname.text.isNotEmpty &&
+                        lastname.text.isNotEmpty &&
+                        address.text.isNotEmpty &&
+                        province.text.isNotEmpty) {
                       updateProfileDetails();
                     } else {
                       var snackBar = SnackBar(
@@ -690,11 +700,11 @@ class _UpdateProfileDetailsState extends State<UpdateProfileDetails> {
                           content: Text(
                             'Enter all the details',
                             style:
-                            Theme.of(context).textTheme.bodySmall?.copyWith(
-                              fontSize: 17.sp,
-                              color: Constants.primaryColor,
-                              fontWeight: FontWeight.bold,
-                            ),
+                                Theme.of(context).textTheme.bodySmall?.copyWith(
+                                      fontSize: 17.sp,
+                                      color: Constants.primaryColor,
+                                      fontWeight: FontWeight.bold,
+                                    ),
                           ));
                       ScaffoldMessenger.of(context).showSnackBar(snackBar);
                       // Navigation.instance.goBack();
@@ -703,10 +713,10 @@ class _UpdateProfileDetailsState extends State<UpdateProfileDetails> {
                   child: Text(
                     "Update Details",
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      fontSize: 17.sp,
-                      color: Constants.primaryColor,
-                      fontWeight: FontWeight.bold,
-                    ),
+                          fontSize: 17.sp,
+                          color: Constants.primaryColor,
+                          fontWeight: FontWeight.bold,
+                        ),
                   ),
                 ),
               ),
@@ -719,6 +729,7 @@ class _UpdateProfileDetailsState extends State<UpdateProfileDetails> {
       ),
     );
   }
+
   Future<void> pickImage(Function(String path) onTap) async {
     final ImagePicker picker = ImagePicker();
     final XFile? image = await picker.pickImage(source: ImageSource.gallery);
@@ -737,16 +748,16 @@ class _UpdateProfileDetailsState extends State<UpdateProfileDetails> {
         setState(() {
           _suggestions = result['predictions']
               .map<Suggestion>((p) => Suggestion(
-            placeId: p['place_id'],
-            description: p['description'],
-          ))
+                    placeId: p['place_id'],
+                    description: p['description'],
+                  ))
               .toList();
         });
         return result['predictions']
             .map<Suggestion>((p) => Suggestion(
-          placeId: p['place_id'],
-          description: p['description'],
-        ))
+                  placeId: p['place_id'],
+                  description: p['description'],
+                ))
             .toList();
       }
       if (result['status'] == 'ZERO_RESULTS') {
@@ -772,7 +783,7 @@ class _UpdateProfileDetailsState extends State<UpdateProfileDetails> {
       if (result['status'] == 'OK') {
         // Extract address components
         final components =
-        result['result']['address_components'] as List<dynamic>;
+            result['result']['address_components'] as List<dynamic>;
         for (var component in components) {
           final types = component['types'] as List<dynamic>;
           if (types.contains('street_number')) {
@@ -808,7 +819,76 @@ class _UpdateProfileDetailsState extends State<UpdateProfileDetails> {
     }
   }
 
-  void updateProfileDetails() async{
-    final response = await ApiProvider.instance.updatePersonalDetails(Storage.instance.token, firstname.text, lastname.text, address.text, province.text, city, postalcode.text, currentSuggestion!.latitude.toString(), currentSuggestion!.longitude.toString(), address_proof!.path, profile_photo!.path);
+  void updateProfileDetails() async {
+    final data = Provider.of<Repository>(context, listen: false).profile;
+    CommonFunction().showLoadingDialog(context);
+    final response = await ApiProvider.instance.updatePersonalDetails(
+      firstname.text,
+      lastname.text,
+      address.text,
+      province.text,
+      city,
+      postalcode.text,
+      (currentSuggestion?.latitude ?? data?.latitude ?? 0).toString(),
+      (currentSuggestion?.longitude ?? data?.longitude ?? 0).toString(),
+      address_proof?.path ?? "",
+      profile_photo?.path ?? "",
+    );
+    if (response.success ?? false) {
+      var snackBar = SnackBar(
+        backgroundColor: Constants.seventhColor,
+        content: Text(
+          response.message ?? 'Profile Updated Successfully',
+          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                fontSize: 17.sp,
+                color: Constants.primaryColor,
+                fontWeight: FontWeight.bold,
+              ),
+        ),
+      );
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+      fetchProfile();
+    } else {
+      CommonFunction().hideLoadingDialog(context);
+      var snackBar = SnackBar(
+        backgroundColor: Constants.secondaryColor,
+        content: Text(
+          response.message ?? 'Something went wrong',
+          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                fontSize: 17.sp,
+                color: Constants.primaryColor,
+                fontWeight: FontWeight.bold,
+              ),
+        ),
+      );
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    }
+  }
+
+  void loadPersonalDetails() {
+    final data = Provider.of<Repository>(context, listen: false).profile;
+    firstname.text = data?.firstName ?? "";
+    lastname.text = data?.lastName ?? "";
+    address.text = data?.full_address ?? "";
+    province.text = data?.province ?? "";
+    postalcode.text = data?.postal_code ?? "";
+    doc_pic = data?.address_proof ?? "";
+    profile_pic = data?.profile_pic ?? "";
+    city = data?.city ?? "";
+    debugPrint(
+        "data?.address_proof ${data?.address_proof}\n${data?.profile_pic}");
+    setState(() {});
+  }
+
+  Future<void> fetchProfile() async {
+    final response = await ApiProvider.instance.getMyDetails();
+    if (response.success ?? false) {
+      CommonFunction().hideLoadingDialog(context);
+      Provider.of<Repository>(context, listen: false)
+          .setProfileModel(response.data!);
+      Navigation.instance.goBack();
+    }else{
+      CommonFunction().hideLoadingDialog(context);
+    }
   }
 }
