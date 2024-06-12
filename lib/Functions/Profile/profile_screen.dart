@@ -58,14 +58,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 child: SingleChildScrollView(
                   child: Column(
                     children: [
-                      OptionsItem(
-                        onTap: () {
-                          Navigation.instance
-                              .navigate(Routes.profileUpdateScreen);
-                        },
-                        title: 'Edit Profile',
-                        icon: Icons.person_rounded,
-                      ),
+                      // OptionsItem(
+                      //   onTap: () {
+                      //     Navigation.instance
+                      //         .navigate(Routes.profileUpdateScreen);
+                      //   },
+                      //   title: 'Edit Profile',
+                      //   icon: Icons.person_rounded,
+                      // ),
                       OptionsItem(
                         onTap: () {
                           // Navigation.instance

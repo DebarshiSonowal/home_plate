@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:home_plate/Api/api_provider.dart';
+import 'package:home_plate/Constants/common_function.dart';
 import 'package:http/http.dart' as http;
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:bottom_picker/bottom_picker.dart';
@@ -59,6 +60,8 @@ class _CreateProfileScreenState extends State<CreateProfileScreen> {
     "Bank of Montreal",
     "Canadian Imperial Bank of Canada",
   ];
+
+  bool _isValidPostalCode=true;
 
   // final email = TextEditingController();
   // String? address;
@@ -390,11 +393,21 @@ class _CreateProfileScreenState extends State<CreateProfileScreen> {
                                   margin: EdgeInsets.symmetric(
                                     horizontal: 1.w,
                                   ),
-                                  height: 5.5.h,
+                                  // height: 5.5.h,
                                   child: TextField(
                                     // maxLength: 10,
                                     keyboardType: TextInputType.text,
                                     controller: postalcode,
+                                    onChanged: (val){
+                                      if(val.isEmpty||CommonFunction().validateCanadianPostalCode(val)){
+                                        _isValidPostalCode = true;
+                                      }else{
+                                        _isValidPostalCode = false;
+                                      }
+                                      setState(() {
+
+                                      });
+                                    },
                                     decoration: InputDecoration(
                                       counterStyle: const TextStyle(
                                         height: double.minPositive,
@@ -428,6 +441,9 @@ class _CreateProfileScreenState extends State<CreateProfileScreen> {
                                       ),
                                       hintText: "Please enter your postal code",
                                       fillColor: Colors.white70,
+                                      errorText: _isValidPostalCode
+                                          ? null
+                                          : 'Wrong Postal Code',
                                       // prefixIcon: const Icon(
                                       //   Icons.phone,
                                       //   color: Constants.fourthColor,
@@ -983,23 +999,45 @@ class _CreateProfileScreenState extends State<CreateProfileScreen> {
                                           if (password.text ==
                                               confirmPassword.text) {
                                             if (isAgreed) {
-                                              // startRegistration(
-                                              //   widget.firstname,
-                                              //   widget.lastname,
-                                              //   widget.email,
-                                              //   widget.mobile,
-                                              //   widget.are_you_a,
-                                              //   password.text,
-                                              //   address.text,
-                                              //   province.text,
-                                              //   currentSuggestion?.city??"",
-                                              //   postalcode.text,
-                                              //   currentSuggestion?.latitude??0,
-                                              //   currentSuggestion?.longitude??0,
-                                              // );
-                                              Navigation.instance.navigate(
-                                                Routes.profileVerificationScreen,
-                                              );
+                                             if(CommonFunction().validateCanadianPostalCode(postalcode.text)){
+                                               startRegistration(
+                                                 widget.firstname,
+                                                 widget.lastname,
+                                                 widget.email,
+                                                 widget.mobile,
+                                                 widget.are_you_a,
+                                                 password.text,
+                                                 address.text,
+                                                 province.text,
+                                                 currentSuggestion?.city??"",
+                                                 postalcode.text,
+                                                 currentSuggestion?.latitude??0,
+                                                 currentSuggestion?.longitude??0,
+                                               );
+                                               // Navigation.instance.navigate(
+                                               //   Routes.profileVerificationScreen,
+                                               // );
+                                             }else{
+                                               var snackBar = SnackBar(
+                                                 backgroundColor:
+                                                 Constants.secondaryColor,
+                                                 content: Text(
+                                                   'Please Enter a valid postal code',
+                                                   style: Theme.of(context)
+                                                       .textTheme
+                                                       .bodySmall
+                                                       ?.copyWith(
+                                                     fontSize: 17.sp,
+                                                     color: Constants
+                                                         .primaryColor,
+                                                     fontWeight:
+                                                     FontWeight.bold,
+                                                   ),
+                                                 ),
+                                               );
+                                               ScaffoldMessenger.of(context)
+                                                   .showSnackBar(snackBar);
+                                             }
                                             } else {
                                               var snackBar = SnackBar(
                                                 backgroundColor:

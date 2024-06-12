@@ -1,28 +1,26 @@
 import 'package:flutter/material.dart';
 
-class OrderResponse{
+class OrderResponse {
   bool? success;
   String? message;
   List<OrderModel>? orders;
 
-  OrderResponse.fromJson(json){
-
-    success = json['success']??false;
-    message = json['message']??"";
+  OrderResponse.fromJson(json) {
+    success = json['success'] ?? false;
+    message = json['message'] ?? "";
     try {
-      orders = (json['data'] as List).map((e) => OrderModel.fromJson(e)).toList();
+      orders =
+          (json['data'] as List).map((e) => OrderModel.fromJson(e)).toList();
     } catch (e) {
       print(e);
     }
-    debugPrint(
-        "updateLatLongAndGetListOfOrdersForDriver response2: $orders");
+    debugPrint("updateLatLongAndGetListOfOrdersForDriver response2: $orders");
   }
 
-  OrderResponse.withError(msg){
+  OrderResponse.withError(msg) {
     success = false;
     message = msg;
   }
-
 }
 
 class OrderModel {
@@ -52,34 +50,38 @@ class OrderModel {
   Chefs? chefs;
   List<OrderItems>? orderItems;
   List<OrderTrack>? orderTrack;
+  String? distance;
+  String? duration;
 
   OrderModel(
       {this.id,
-        this.orderId,
-        this.subOrderId,
-        this.chefId,
-        this.chefCommission,
-        this.chefCommissionAmount,
-        this.chefCommissionTaxes,
-        this.chefSaleTaxes,
-        this.trackId,
-        this.itemTotal,
-        this.amount,
-        this.tip,
-        this.tipType,
-        this.tipAmount,
-        this.status,
-        this.reason,
-        this.driverId,
-        this.deliveryToken,
-        this.customerDeliveryToken,
-        this.deletedAt,
-        this.createdAt,
-        this.updatedAt,
-        this.orders,
-        this.chefs,
-        this.orderItems,
-        this.orderTrack});
+      this.orderId,
+      this.subOrderId,
+      this.chefId,
+      this.chefCommission,
+      this.chefCommissionAmount,
+      this.chefCommissionTaxes,
+      this.chefSaleTaxes,
+      this.trackId,
+      this.itemTotal,
+      this.amount,
+      this.tip,
+      this.tipType,
+      this.tipAmount,
+      this.status,
+      this.reason,
+      this.driverId,
+      this.deliveryToken,
+      this.customerDeliveryToken,
+      this.deletedAt,
+      this.createdAt,
+      this.updatedAt,
+      this.orders,
+      this.chefs,
+      this.orderItems,
+      this.orderTrack,
+      this.distance,
+      this.duration});
 
   OrderModel.fromJson(Map<String, dynamic> json) {
     id = json['id'];
@@ -104,8 +106,7 @@ class OrderModel {
     deletedAt = json['deleted_at'];
     createdAt = json['created_at'];
     updatedAt = json['updated_at'];
-    orders =
-    json['orders'] != null ? Orders.fromJson(json['orders']) : null;
+    orders = json['orders'] != null ? Orders.fromJson(json['orders']) : null;
     chefs = json['chefs'] != null ? Chefs.fromJson(json['chefs']) : null;
     if (json['order_items'] != null) {
       orderItems = <OrderItems>[];
@@ -119,6 +120,8 @@ class OrderModel {
         orderTrack!.add(new OrderTrack.fromJson(v));
       });
     }
+    distance = json['distance'];
+    duration = json['duration'];
   }
 
   Map<String, dynamic> toJson() {
@@ -157,6 +160,8 @@ class OrderModel {
     if (this.orderTrack != null) {
       data['order_track'] = this.orderTrack!.map((v) => v.toJson()).toList();
     }
+    data['distance'] = distance;
+    data['duration'] = duration;
     return data;
   }
 }
@@ -198,38 +203,38 @@ class Orders {
 
   Orders(
       {this.id,
-        this.orderId,
-        this.taxTypes,
-        this.orderTotal,
-        this.orderTax,
-        this.orderDate,
-        this.shipping,
-        this.shippingTax,
-        this.discountAmount,
-        this.grandTotal,
-        this.userId,
-        this.shippingAddress,
-        this.city,
-        this.state,
-        this.latitude,
-        this.longitude,
-        this.postalCode,
-        this.paymentMode,
-        this.deliveryDate,
-        this.deliveryTime,
-        this.foodInstruction,
-        this.deliveryOption,
-        this.optionDesc,
-        this.deliveryInstructions,
-        this.paymentStatus,
-        this.transactonId,
-        this.totalOrderItem,
-        this.tipTotal,
-        this.userMobileNo,
-        this.username,
-        this.deletedAt,
-        this.createdAt,
-        this.updatedAt});
+      this.orderId,
+      this.taxTypes,
+      this.orderTotal,
+      this.orderTax,
+      this.orderDate,
+      this.shipping,
+      this.shippingTax,
+      this.discountAmount,
+      this.grandTotal,
+      this.userId,
+      this.shippingAddress,
+      this.city,
+      this.state,
+      this.latitude,
+      this.longitude,
+      this.postalCode,
+      this.paymentMode,
+      this.deliveryDate,
+      this.deliveryTime,
+      this.foodInstruction,
+      this.deliveryOption,
+      this.optionDesc,
+      this.deliveryInstructions,
+      this.paymentStatus,
+      this.transactonId,
+      this.totalOrderItem,
+      this.tipTotal,
+      this.userMobileNo,
+      this.username,
+      this.deletedAt,
+      this.createdAt,
+      this.updatedAt});
 
   Orders.fromJson(Map<String, dynamic> json) {
     id = json['id'];
@@ -410,76 +415,76 @@ class Chefs {
 
   Chefs(
       {this.id,
-        this.isHfcPaid,
-        this.isRccPaid,
-        this.firstName,
-        this.lastName,
-        this.dateOfBirth,
-        this.type,
-        this.subType,
-        this.addressLine1,
-        this.addressLine2,
-        this.state,
-        this.city,
-        this.postalCode,
-        this.latitude,
-        this.longitude,
-        this.mobile,
-        this.profilePic,
-        this.isMobileVerified,
-        this.email,
-        this.isEmailVerified,
-        this.emailVerifiedAt,
-        this.isPersonalDetailComplete,
-        this.addressProof,
-        this.addressProofPath,
-        this.idProof1,
-        this.idProofPath1,
-        this.idProof2,
-        this.idProofPath2,
-        this.areYouA,
-        this.areYouAFilePath,
-        this.twitterLink,
-        this.facebookLink,
-        this.tiktokLink,
-        this.kitchenName,
-        this.chefBannerImage,
-        this.chefCardImage,
-        this.kitchenTypes,
-        this.otherKitchenTypes,
-        this.aboutKitchen,
-        this.gstNo,
-        this.qstNo,
-        this.gstImage,
-        this.qstImage,
-        this.bankName,
-        this.transitNumber,
-        this.accountNumber,
-        this.institutionNumber,
-        this.rating,
-        this.newToCanada,
-        this.status,
-        this.chefAvailibilityStatus,
-        this.chefAvailibilityWeek,
-        this.chefAvailibilityFromTime,
-        this.chefAvailibilityToTime,
-        this.blacklistedUser,
-        this.resetToken,
-        this.profilePercenatge,
-        this.story,
-        this.storyImg,
-        this.isKitchenDetailCompleted,
-        this.isSocialDetailCompleted,
-        this.isBankDetailCompleted,
-        this.isRrcCertificateDocumentCompleted,
-        this.isFhcDocumentCompleted,
-        this.isDocumentDetailsCompleted,
-        this.isSpecialBenefitDocumentCompleted,
-        this.isPersonalDetailsCompleted,
-        this.isTaxDocumentCompleted,
-        this.deletedAt,
-        this.createdAt,
-        this.updatedAt});
+      this.isHfcPaid,
+      this.isRccPaid,
+      this.firstName,
+      this.lastName,
+      this.dateOfBirth,
+      this.type,
+      this.subType,
+      this.addressLine1,
+      this.addressLine2,
+      this.state,
+      this.city,
+      this.postalCode,
+      this.latitude,
+      this.longitude,
+      this.mobile,
+      this.profilePic,
+      this.isMobileVerified,
+      this.email,
+      this.isEmailVerified,
+      this.emailVerifiedAt,
+      this.isPersonalDetailComplete,
+      this.addressProof,
+      this.addressProofPath,
+      this.idProof1,
+      this.idProofPath1,
+      this.idProof2,
+      this.idProofPath2,
+      this.areYouA,
+      this.areYouAFilePath,
+      this.twitterLink,
+      this.facebookLink,
+      this.tiktokLink,
+      this.kitchenName,
+      this.chefBannerImage,
+      this.chefCardImage,
+      this.kitchenTypes,
+      this.otherKitchenTypes,
+      this.aboutKitchen,
+      this.gstNo,
+      this.qstNo,
+      this.gstImage,
+      this.qstImage,
+      this.bankName,
+      this.transitNumber,
+      this.accountNumber,
+      this.institutionNumber,
+      this.rating,
+      this.newToCanada,
+      this.status,
+      this.chefAvailibilityStatus,
+      this.chefAvailibilityWeek,
+      this.chefAvailibilityFromTime,
+      this.chefAvailibilityToTime,
+      this.blacklistedUser,
+      this.resetToken,
+      this.profilePercenatge,
+      this.story,
+      this.storyImg,
+      this.isKitchenDetailCompleted,
+      this.isSocialDetailCompleted,
+      this.isBankDetailCompleted,
+      this.isRrcCertificateDocumentCompleted,
+      this.isFhcDocumentCompleted,
+      this.isDocumentDetailsCompleted,
+      this.isSpecialBenefitDocumentCompleted,
+      this.isPersonalDetailsCompleted,
+      this.isTaxDocumentCompleted,
+      this.deletedAt,
+      this.createdAt,
+      this.updatedAt});
 
   Chefs.fromJson(Map<String, dynamic> json) {
     id = json['id'];
@@ -545,11 +550,11 @@ class Chefs {
     isSocialDetailCompleted = json['is_social_detail_completed'];
     isBankDetailCompleted = json['is_bank_detail_completed'];
     isRrcCertificateDocumentCompleted =
-    json['is_rrc_certificate_document_completed'];
+        json['is_rrc_certificate_document_completed'];
     isFhcDocumentCompleted = json['is_fhc_document_completed'];
     isDocumentDetailsCompleted = json['is_document_details_completed'];
     isSpecialBenefitDocumentCompleted =
-    json['is_special_benefit_document_completed'];
+        json['is_special_benefit_document_completed'];
     isPersonalDetailsCompleted = json['is_personal_details_completed'];
     isTaxDocumentCompleted = json['is_tax_document_completed'];
     deletedAt = json['deleted_at'];
@@ -649,14 +654,14 @@ class OrderItems {
 
   OrderItems(
       {this.id,
-        this.subOrderId,
-        this.foodId,
-        this.quantity,
-        this.price,
-        this.total,
-        this.deletedAt,
-        this.createdAt,
-        this.updatedAt});
+      this.subOrderId,
+      this.foodId,
+      this.quantity,
+      this.price,
+      this.total,
+      this.deletedAt,
+      this.createdAt,
+      this.updatedAt});
 
   OrderItems.fromJson(Map<String, dynamic> json) {
     id = json['id'];
@@ -696,12 +701,12 @@ class OrderTrack {
 
   OrderTrack(
       {this.id,
-        this.trackId,
-        this.trackDesc,
-        this.status,
-        this.deletedAt,
-        this.createdAt,
-        this.updatedAt});
+      this.trackId,
+      this.trackDesc,
+      this.status,
+      this.deletedAt,
+      this.createdAt,
+      this.updatedAt});
 
   OrderTrack.fromJson(Map<String, dynamic> json) {
     id = json['id'];

@@ -47,4 +47,12 @@ class CommonFunction {
     );
     ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
+  bool validateCanadianPostalCode(String postalCode) {
+    // Trim whitespace and convert to uppercase
+    postalCode = postalCode.trim().toUpperCase();
+
+    // Use a regular expression to validate the postal code
+    final regex = RegExp(r'^[A-Z]\d[A-Z] ?\d[A-Z]\d$');
+    return regex.hasMatch(postalCode);
+  }
 }
