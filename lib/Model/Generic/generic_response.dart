@@ -24,6 +24,22 @@ class GenericResponse with _$GenericResponse {
     message: message,
   );
 }
+@freezed
+class GenericResponse2 with _$GenericResponse2 {
+  const factory GenericResponse2({
+    String? message,
+    int? code,
+    @Default(false) bool status,
+  }) = _GenericResponse2;
+
+  factory GenericResponse2.fromJson(Map<String, Object?> json)
+  => _$GenericResponse2FromJson(json);
+
+  factory GenericResponse2.error(String message) => GenericResponse2(
+    message: message,
+  );
+}
+
 
 
 

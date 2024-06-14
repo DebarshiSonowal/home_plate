@@ -28,9 +28,39 @@ class CommonFunction {
     ); // Simulate loading// Dismiss the dialog
   }
 
-  Future<bool> hideLoadingDialog(context) async{
+  Future<bool> hideLoadingDialog(context) async {
     Navigator.of(context).pop();
     return true;
+  }
+
+  void showSuccessSnackBar(
+      BuildContext context, String? message, String defaultMessage) {
+    var snackBar = SnackBar(
+        backgroundColor: Constants.seventhColor,
+        content: Text(
+          message ?? defaultMessage,
+          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                fontSize: 17.sp,
+                color: Constants.primaryColor,
+                fontWeight: FontWeight.bold,
+              ),
+        ));
+    ScaffoldMessenger.of(context).showSnackBar(snackBar);
+  }
+
+  void showErrorSnackBar(
+      BuildContext context, String? message, String? defaultMessage) {
+    var snackBar = SnackBar(
+        backgroundColor: Constants.secondaryColor,
+        content: Text(
+          message ?? (defaultMessage??"Something went wrong"),
+          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                fontSize: 17.sp,
+                color: Constants.primaryColor,
+                fontWeight: FontWeight.bold,
+              ),
+        ));
+    ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
 
   void accountDeactivate(context) {
@@ -47,6 +77,7 @@ class CommonFunction {
     );
     ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
+
   bool validateCanadianPostalCode(String postalCode) {
     // Trim whitespace and convert to uppercase
     postalCode = postalCode.trim().toUpperCase();

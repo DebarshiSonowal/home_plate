@@ -5,7 +5,12 @@ import 'package:auto_size_text/auto_size_text.dart';
 import 'package:faker/faker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_otp_text_field/flutter_otp_text_field.dart';
+import 'package:home_plate/Api/api_provider.dart';
+import 'package:home_plate/Constants/common_function.dart';
+import 'package:home_plate/Repository/repository.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:provider/provider.dart';
+
 // import 'package:pluto_grid/pluto_grid.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 
@@ -25,6 +30,7 @@ class DeliveryVerifyScreen extends StatefulWidget {
 
 class _DeliveryVerifyScreenState extends State<DeliveryVerifyScreen> {
   XFile? selectedPhoto;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -82,11 +88,11 @@ class _DeliveryVerifyScreenState extends State<DeliveryVerifyScreen> {
                   color: Constants.primaryColor,
                   // color: Colors.grey.shade400!.withOpacity(0.2),
                   border: const Border.symmetric(
-                    // horizontal: BorderSide(
-                    //   color: Colors.grey.shade100.withOpacity(0.2),
-                    //   width: 0.5.w,
-                    // ),
-                  ),
+                      // horizontal: BorderSide(
+                      //   color: Colors.grey.shade100.withOpacity(0.2),
+                      //   width: 0.5.w,
+                      // ),
+                      ),
                   borderRadius: BorderRadius.circular(10),
                 ),
                 height: 7.h,
@@ -104,19 +110,21 @@ class _DeliveryVerifyScreenState extends State<DeliveryVerifyScreen> {
                                   .textTheme
                                   .bodySmall
                                   ?.copyWith(
-                                color: Constants.fourthColor,
-                                // fontWeight: FontWeight.bold,
-                                fontSize: 14.5.sp,
-                              ),
+                                    color: Constants.fourthColor,
+                                    // fontWeight: FontWeight.bold,
+                                    fontSize: 14.5.sp,
+                                  ),
                             ),
                             TextSpan(
-                              text:Faker().person.name(),
-                              style:
-                              Theme.of(context).textTheme.bodySmall?.copyWith(
-                                color: Constants.fourthColor,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 14.5.sp,
-                              ),
+                              text: Faker().person.name(),
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodySmall
+                                  ?.copyWith(
+                                    color: Constants.fourthColor,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 14.5.sp,
+                                  ),
                             ),
                           ],
                         ),
@@ -144,11 +152,11 @@ class _DeliveryVerifyScreenState extends State<DeliveryVerifyScreen> {
                   color: Constants.primaryColor,
                   // color: Colors.grey.shade400!.withOpacity(0.2),
                   border: const Border.symmetric(
-                    // horizontal: BorderSide(
-                    //   color: Colors.grey.shade100.withOpacity(0.2),
-                    //   width: 0.5.w,
-                    // ),
-                  ),
+                      // horizontal: BorderSide(
+                      //   color: Colors.grey.shade100.withOpacity(0.2),
+                      //   width: 0.5.w,
+                      // ),
+                      ),
                   borderRadius: BorderRadius.circular(10),
                 ),
                 // height: 7.h,
@@ -168,10 +176,10 @@ class _DeliveryVerifyScreenState extends State<DeliveryVerifyScreen> {
                                   .textTheme
                                   .bodySmall
                                   ?.copyWith(
-                                color: Constants.fourthColor,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 14.5.sp,
-                              ),
+                                    color: Constants.fourthColor,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 14.5.sp,
+                                  ),
                             ),
                           ],
                         ),
@@ -192,19 +200,21 @@ class _DeliveryVerifyScreenState extends State<DeliveryVerifyScreen> {
                                   .textTheme
                                   .bodySmall
                                   ?.copyWith(
-                                color: Constants.fourthColor,
-                                // fontWeight: FontWeight.bold,
-                                fontSize: 14.5.sp,
-                              ),
+                                    color: Constants.fourthColor,
+                                    // fontWeight: FontWeight.bold,
+                                    fontSize: 14.5.sp,
+                                  ),
                             ),
                             TextSpan(
-                              text:" Leave at my door",
-                              style:
-                              Theme.of(context).textTheme.bodySmall?.copyWith(
-                                color: Constants.fourthColor,
-                                // fontWeight: FontWeight.bold,
-                                fontSize: 14.5.sp,
-                              ),
+                              text: " Leave at my door",
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodySmall
+                                  ?.copyWith(
+                                    color: Constants.fourthColor,
+                                    // fontWeight: FontWeight.bold,
+                                    fontSize: 14.5.sp,
+                                  ),
                             ),
                           ],
                         ),
@@ -232,11 +242,11 @@ class _DeliveryVerifyScreenState extends State<DeliveryVerifyScreen> {
                   color: Constants.primaryColor,
                   // color: Colors.grey.shade400!.withOpacity(0.2),
                   border: const Border.symmetric(
-                    // horizontal: BorderSide(
-                    //   color: Colors.grey.shade100.withOpacity(0.2),
-                    //   width: 0.5.w,
-                    // ),
-                  ),
+                      // horizontal: BorderSide(
+                      //   color: Colors.grey.shade100.withOpacity(0.2),
+                      //   width: 0.5.w,
+                      // ),
+                      ),
                   borderRadius: BorderRadius.circular(10),
                 ),
                 // height: 7.h,
@@ -256,10 +266,10 @@ class _DeliveryVerifyScreenState extends State<DeliveryVerifyScreen> {
                                   .textTheme
                                   .bodySmall
                                   ?.copyWith(
-                                color: Constants.fourthColor,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 14.5.sp,
-                              ),
+                                    color: Constants.fourthColor,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 14.5.sp,
+                                  ),
                             ),
                           ],
                         ),
@@ -282,22 +292,22 @@ class _DeliveryVerifyScreenState extends State<DeliveryVerifyScreen> {
                           TextSpan(
                             children: [
                               TextSpan(
-                                text: "Please ensure that the bank details are correct and  bank account in your name. Your payout will be account.",
+                                text:
+                                    "Please ensure that the bank details are correct and  bank account in your name. Your payout will be account.",
                                 style: Theme.of(context)
                                     .textTheme
                                     .bodySmall
                                     ?.copyWith(
-                                  color: Constants.fourthColor,
-                                  // fontWeight: FontWeight.bold,
-                                  fontSize: 14.5.sp,
-                                ),
+                                      color: Constants.fourthColor,
+                                      // fontWeight: FontWeight.bold,
+                                      fontSize: 14.5.sp,
+                                    ),
                               ),
                             ],
                           ),
                           overflow: TextOverflow.ellipsis,
                           maxLines: 2,
-                        )
-                    ),
+                        )),
                   ],
                 ),
               ),
@@ -311,20 +321,20 @@ class _DeliveryVerifyScreenState extends State<DeliveryVerifyScreen> {
                 TextSpan(
                   children: [
                     TextSpan(
-                      text: "Please Ask For The Pickup OTP from\n",
+                      text: "Please Ask For The Delivery OTP from\n",
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: Constants.fourthColor,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 14.sp,
-                      ),
+                            color: Constants.fourthColor,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 14.sp,
+                          ),
                     ),
                     TextSpan(
                       text: Faker().person.name(),
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: Constants.fourthColor,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 14.sp,
-                      ),
+                            color: Constants.fourthColor,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 14.sp,
+                          ),
                     ),
                   ],
                 ),
@@ -337,7 +347,7 @@ class _DeliveryVerifyScreenState extends State<DeliveryVerifyScreen> {
             OtpTextField(
               numberOfFields: 4,
               borderColor: Constants.fourthColor,
-              borderRadius:BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(12),
               focusedBorderColor: Constants.fourthColor,
               filled: true,
               fieldWidth: 15.w,
@@ -377,8 +387,7 @@ class _DeliveryVerifyScreenState extends State<DeliveryVerifyScreen> {
                   border: Border.all(
                     color: Constants.primaryColor,
                     width: 1.2.w,
-                  )
-              ),
+                  )),
               padding: EdgeInsets.symmetric(
                 vertical: 1.h,
               ),
@@ -392,26 +401,30 @@ class _DeliveryVerifyScreenState extends State<DeliveryVerifyScreen> {
                         children: [
                           TextSpan(
                             text: "Click a photo of the product delivered to\n",
-                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              color: Constants.fourthColor,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 14.sp,
-                            ),
+                            style:
+                                Theme.of(context).textTheme.bodySmall?.copyWith(
+                                      color: Constants.fourthColor,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 14.sp,
+                                    ),
                           ),
                           TextSpan(
                             text: Faker().person.name(),
-                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              color: Constants.fourthColor,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 14.sp,
-                            ),
+                            style:
+                                Theme.of(context).textTheme.bodySmall?.copyWith(
+                                      color: Constants.fourthColor,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 14.sp,
+                                    ),
                           ),
                         ],
                       ),
                       textAlign: TextAlign.center,
                     ),
                   ),
-                  SizedBox(height: 1.h,),
+                  SizedBox(
+                    height: 1.h,
+                  ),
                   Container(
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(10),
@@ -419,18 +432,23 @@ class _DeliveryVerifyScreenState extends State<DeliveryVerifyScreen> {
                     ),
                     height: 22.h,
                     width: 75.w,
-                    child: selectedPhoto==null?Center(
-                      child: GestureDetector(
-                        onTap: (){
-                          pickPhoto();
-                        },
-                        child: Icon(
-                          Icons.camera,
-                          color: Constants.fourthColor,
-                          size: 25.sp,
-                        ),
-                      ),
-                    ):Image.file(File(selectedPhoto!.path),fit: BoxFit.contain,),
+                    child: selectedPhoto == null
+                        ? Center(
+                            child: GestureDetector(
+                              onTap: () {
+                                pickPhoto();
+                              },
+                              child: Icon(
+                                Icons.camera,
+                                color: Constants.fourthColor,
+                                size: 25.sp,
+                              ),
+                            ),
+                          )
+                        : Image.file(
+                            File(selectedPhoto!.path),
+                            fit: BoxFit.contain,
+                          ),
                   ),
                 ],
               ),
@@ -450,21 +468,19 @@ class _DeliveryVerifyScreenState extends State<DeliveryVerifyScreen> {
                   ),
                 ),
                 onPressed: () {
-                  Navigation.instance
-                      .navigate(Routes.getOrderScreen);
+                  verifyDelivery(context,widget.id.toString(),"0000");
+
                 },
                 child: Text(
                   "Verified Delivery",
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: Constants.secondaryColor,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 17.sp,
-                  ),
+                        color: Constants.secondaryColor,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 17.sp,
+                      ),
                 ),
               ),
             ),
-
-
           ],
         ),
       ),
@@ -544,5 +560,23 @@ class _DeliveryVerifyScreenState extends State<DeliveryVerifyScreen> {
     setState(() {
       selectedPhoto = photo;
     });
+  }
+
+  void verifyDelivery(BuildContext context,String order_id,String otp) async {
+    CommonFunction().showLoadingDialog(context);
+    final data = Provider.of<Repository>(context, listen: false).profile;
+    final response = await ApiProvider.instance.acceptedOrderStatus(
+        (data?.id ?? 0).toString(), order_id,'3', otp, (selectedPhoto?.path ?? ""));
+    if (response.status ?? false) {
+      CommonFunction().hideLoadingDialog(context);
+      CommonFunction().showSuccessSnackBar(
+          context, response.message, "Order Delivered Successfully");
+      Navigation.instance
+          .navigate(Routes.getOrderScreen);
+    } else {
+      CommonFunction().hideLoadingDialog(context);
+      CommonFunction()
+          .showErrorSnackBar(context, response.message, "Something went wrong");
+    }
   }
 }

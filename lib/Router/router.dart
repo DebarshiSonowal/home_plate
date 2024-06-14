@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:home_plate/Functions/ContactUs/contact_us.dart';
 import 'package:home_plate/Functions/EditProfile/edit_profile.dart';
 import 'package:home_plate/Functions/HomePage/home_screen.dart';
 import 'package:home_plate/Functions/IntroSlides/intro_slides.dart';
@@ -136,6 +137,8 @@ Route<dynamic> generateRoute(RouteSettings settings) {
       return FadeTransitionPageRouteBuilder(page: const UpdateProfileDetails());
     case Routes.profileVerifyEmailScreen:
       return FadeTransitionPageRouteBuilder(page: const VerifyEmailScreen());
+    case Routes.contactUsScreen:
+      return FadeTransitionPageRouteBuilder(page: const ContactUsScreen());
     default:
       return FadeTransitionPageRouteBuilder(
         page: Container(),

@@ -20,6 +20,7 @@ class CustomNavigationDrawer extends StatefulWidget {
 
 class _CustomNavigationDrawerState extends State<CustomNavigationDrawer> {
   bool isExpended = false;
+
   @override
   Widget build(BuildContext context) {
     return NavigationDrawer(
@@ -110,7 +111,7 @@ class _CustomNavigationDrawerState extends State<CustomNavigationDrawer> {
             size: 23.sp,
           ),
           trailing: Icon(
-            !isExpended?Icons.arrow_drop_down:Icons.arrow_drop_up,
+            !isExpended ? Icons.arrow_drop_down : Icons.arrow_drop_up,
             color: Constants.primaryColor,
           ),
           title: Text(
@@ -212,7 +213,7 @@ class _CustomNavigationDrawerState extends State<CustomNavigationDrawer> {
                 ),
           ),
           onTap: () {
-            // Navigation.instance.navigate(Routes.profileScreen);
+            Navigation.instance.navigate(Routes.contactUsScreen);
           },
         ),
         SizedBox(
@@ -287,6 +288,8 @@ class _CustomNavigationDrawerState extends State<CustomNavigationDrawer> {
                 ),
           ),
           onTap: () {
+            Navigation.instance.goBack();
+            showConfirmation(context);
             // Navigation.instance.navigate(Routes.profileScreen);
           },
         ),
@@ -317,5 +320,72 @@ class _CustomNavigationDrawerState extends State<CustomNavigationDrawer> {
         ),
       ],
     );
+  }
+
+  void showConfirmation(BuildContext context) {
+    showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: Text(
+              "Delete Your Account",
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: Constants.secondaryColor,
+                    fontSize: 16.sp,
+                    fontWeight: FontWeight.bold,
+                  ),
+            ),
+            content: Text(
+              "Do You Want To Delete Your Account?",
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: Constants.fourthColor,
+                    fontSize: 15.sp,
+                    // fontWeight: FontWeight.bold,
+                  ),
+            ),
+            actions: [
+              TextButton(
+                child: Text(
+                  'Close',
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: Constants.fourthColor,
+                        fontSize: 16.sp,
+                        // fontWeight: FontWeight.bold,
+                      ),
+                ),
+                onPressed: () => Navigator.pop(context),
+              ),
+              TextButton(
+                child: Text(
+                  'Yes',
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: Constants.secondaryColor,
+                        fontSize: 16.sp,
+                        fontWeight: FontWeight.bold,
+                      ),
+                ),
+                onPressed: () {
+                  Navigator.pop(context);
+                  deleteYourAccount(context);
+                },
+              ),
+            ],
+          );
+        });
+  }
+
+  void deleteYourAccount(BuildContext context) async {
+    final data = Provider.of<Repository>(context, listen: false).profile;
+    CommonFunction().showLoadingDialog(context);
+    final response = await ApiProvider.instance
+        .accountDeleteRequest((data?.id ?? 0).toString());
+    if (response.status ?? false) {
+      CommonFunction().hideLoadingDialog(context);
+      CommonFunction().showSuccessSnackBar(
+          context, response.message, "Account deleted successfully");
+    } else {
+      CommonFunction().hideLoadingDialog(context);
+      CommonFunction().showErrorSnackBar(context, response.message, "Account Not Deleted");
+    }
   }
 }

@@ -2,10 +2,13 @@ import 'package:auto_size_text/auto_size_text.dart';
 import 'package:faker/faker.dart';
 import 'package:flutter/material.dart';
 import 'package:home_plate/Api/api_provider.dart';
+import 'package:home_plate/Constants/assets.dart';
+import 'package:home_plate/Constants/common_function.dart';
 import 'package:home_plate/Constants/constants.dart';
 import 'package:home_plate/Repository/repository.dart';
 import 'package:intl/intl.dart';
 import 'package:lite_rolling_switch/lite_rolling_switch.dart';
+import 'package:lottie/lottie.dart';
 import 'package:provider/provider.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:calendar_timeline/calendar_timeline.dart';
@@ -27,12 +30,12 @@ class _HomeScreenState extends State<HomeScreen> {
   bool isActive = false;
   int selectedDate = 0;
 
-
   @override
   void initState() {
     super.initState();
-    Future.delayed(Duration.zero,(){
+    Future.delayed(Duration.zero, () {
       // fetchProfile();
+      setInitialSwitchState();
     });
   }
 
@@ -75,12 +78,14 @@ class _HomeScreenState extends State<HomeScreen> {
                   print('Current State of SWITCH IS: $state');
                 },
                 onTap: () {
+                  changeDriverStatus(context, isActive);
                   setState(() {
                     isActive = !isActive;
                   });
                 },
                 onDoubleTap: () {},
                 onSwipe: () {
+                  changeDriverStatus(context, isActive);
                   setState(() {
                     isActive = !isActive;
                   });
@@ -124,11 +129,16 @@ class _HomeScreenState extends State<HomeScreen> {
                   if (data.hasError) {
                     return const Center(child: Text("Something went wrong"));
                   }
-                  if (data.hasData) {
+                  if (data.hasData && (data.data?.isNotEmpty ?? false)) {
                     return ListView.separated(
                       itemBuilder: (context, index) {
                         final item = data.data![index];
-                        return OrderCard(item: item);
+                        return OrderCard(
+                          item: item,
+                          fetchOrders: () {
+                            fetchOrders(context);
+                          },
+                        );
                       },
                       separatorBuilder: (context, index) {
                         return SizedBox(
@@ -136,6 +146,25 @@ class _HomeScreenState extends State<HomeScreen> {
                         );
                       },
                       itemCount: (data.data ?? []).length,
+                    );
+                  }
+                  if (data.hasData && (data.data?.isEmpty ?? false)) {
+                    return Center(
+                      child: SizedBox(
+                        height: 80.w,
+                        width: 90.w,
+                        child: Center(
+                          child: Text(
+                            "No orders received",
+                            style:
+                                Theme.of(context).textTheme.bodySmall?.copyWith(
+                                      color: Constants.secondaryColor,
+                                      fontSize: 20.sp,
+                                    ),
+                          ),
+                        ),
+                        // child: Lottie.asset(Assets.noOrders),
+                      ),
                     );
                   }
                   return Center(
@@ -170,8 +199,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<List<OrderModel>> fetchOrders(context) async {
     final response = await ApiProvider.instance
-        .updateLatLongAndGetListOfOrdersForDriver(13, 45.6346186, -73.7949733,
-            selectedDate);
+        .updateLatLongAndGetListOfOrdersForDriver(
+            13, 45.6346186, -73.7949733, selectedDate);
     if (response.success ?? false) {
       debugPrint("fetched1 ${response.orders ?? []}");
       Provider.of<Repository>(context, listen: false)
@@ -183,4 +212,39 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
+  void setInitialSwitchState() {
+    final data = Provider.of<Repository>(context, listen: false).profile;
+    setState(() {
+      isActive = (data?.availability ?? 0) == 0 ? false : true;
+    });
+  }
+
+  void changeDriverStatus(BuildContext context, bool isActive) async {
+    CommonFunction().showLoadingDialog(context);
+    final data = Provider.of<Repository>(context, listen: false).profile;
+    final response = await ApiProvider.instance
+        .changeDriverCurrentStatus("${data?.id ?? 0}", "${isActive ? 1 : 0}");
+    if (response.status ?? false) {
+      await CommonFunction().hideLoadingDialog(context);
+      CommonFunction().showSuccessSnackBar(
+          context, response.message, "Driver Status Changed Successfully");
+      fetchProfile(context);
+    } else {
+      await CommonFunction().hideLoadingDialog(context);
+      CommonFunction().showErrorSnackBar(
+          context, response.message, "Driver Status Changing Failed");
+    }
+  }
+
+  Future<void> fetchProfile(context) async {
+    final response = await ApiProvider.instance.getMyDetails();
+    if (response.success ?? false) {
+      // CommonFunction().hideLoadingDialog(context);
+      Provider.of<Repository>(context, listen: false)
+          .setProfileModel(response.data!);
+      // Navigation.instance.goBack();
+    } else {
+      // CommonFunction().hideLoadingDialog(context);
+    }
+  }
 }

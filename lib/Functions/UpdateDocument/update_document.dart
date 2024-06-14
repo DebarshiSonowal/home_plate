@@ -260,20 +260,8 @@ class _UpdateDocumentScreenState extends State<UpdateDocumentScreen> {
                         if (dlNumber.text.isNotEmpty) {
                           updateDrivingLicense();
                         } else {
-                          var snackBar = SnackBar(
-                              backgroundColor: Constants.secondaryColor,
-                              content: Text(
-                                'Enter all the details',
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .bodySmall
-                                    ?.copyWith(
-                                      fontSize: 17.sp,
-                                      color: Constants.primaryColor,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                              ));
-                          ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                          CommonFunction().showErrorSnackBar(
+                              context, null, 'Enter all the details');
                         }
                       },
                       child: Text(

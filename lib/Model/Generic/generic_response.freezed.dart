@@ -179,3 +179,188 @@ abstract class _GenericResponse implements GenericResponse {
   _$$GenericResponseImplCopyWith<_$GenericResponseImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }
+
+GenericResponse2 _$GenericResponse2FromJson(Map<String, dynamic> json) {
+  return _GenericResponse2.fromJson(json);
+}
+
+/// @nodoc
+mixin _$GenericResponse2 {
+  String? get message => throw _privateConstructorUsedError;
+  int? get code => throw _privateConstructorUsedError;
+  bool get status => throw _privateConstructorUsedError;
+
+  Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
+  @JsonKey(ignore: true)
+  $GenericResponse2CopyWith<GenericResponse2> get copyWith =>
+      throw _privateConstructorUsedError;
+}
+
+/// @nodoc
+abstract class $GenericResponse2CopyWith<$Res> {
+  factory $GenericResponse2CopyWith(
+          GenericResponse2 value, $Res Function(GenericResponse2) then) =
+      _$GenericResponse2CopyWithImpl<$Res, GenericResponse2>;
+  @useResult
+  $Res call({String? message, int? code, bool status});
+}
+
+/// @nodoc
+class _$GenericResponse2CopyWithImpl<$Res, $Val extends GenericResponse2>
+    implements $GenericResponse2CopyWith<$Res> {
+  _$GenericResponse2CopyWithImpl(this._value, this._then);
+
+  // ignore: unused_field
+  final $Val _value;
+  // ignore: unused_field
+  final $Res Function($Val) _then;
+
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? message = freezed,
+    Object? code = freezed,
+    Object? status = null,
+  }) {
+    return _then(_value.copyWith(
+      message: freezed == message
+          ? _value.message
+          : message // ignore: cast_nullable_to_non_nullable
+              as String?,
+      code: freezed == code
+          ? _value.code
+          : code // ignore: cast_nullable_to_non_nullable
+              as int?,
+      status: null == status
+          ? _value.status
+          : status // ignore: cast_nullable_to_non_nullable
+              as bool,
+    ) as $Val);
+  }
+}
+
+/// @nodoc
+abstract class _$$GenericResponse2ImplCopyWith<$Res>
+    implements $GenericResponse2CopyWith<$Res> {
+  factory _$$GenericResponse2ImplCopyWith(_$GenericResponse2Impl value,
+          $Res Function(_$GenericResponse2Impl) then) =
+      __$$GenericResponse2ImplCopyWithImpl<$Res>;
+  @override
+  @useResult
+  $Res call({String? message, int? code, bool status});
+}
+
+/// @nodoc
+class __$$GenericResponse2ImplCopyWithImpl<$Res>
+    extends _$GenericResponse2CopyWithImpl<$Res, _$GenericResponse2Impl>
+    implements _$$GenericResponse2ImplCopyWith<$Res> {
+  __$$GenericResponse2ImplCopyWithImpl(_$GenericResponse2Impl _value,
+      $Res Function(_$GenericResponse2Impl) _then)
+      : super(_value, _then);
+
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? message = freezed,
+    Object? code = freezed,
+    Object? status = null,
+  }) {
+    return _then(_$GenericResponse2Impl(
+      message: freezed == message
+          ? _value.message
+          : message // ignore: cast_nullable_to_non_nullable
+              as String?,
+      code: freezed == code
+          ? _value.code
+          : code // ignore: cast_nullable_to_non_nullable
+              as int?,
+      status: null == status
+          ? _value.status
+          : status // ignore: cast_nullable_to_non_nullable
+              as bool,
+    ));
+  }
+}
+
+/// @nodoc
+@JsonSerializable()
+class _$GenericResponse2Impl
+    with DiagnosticableTreeMixin
+    implements _GenericResponse2 {
+  const _$GenericResponse2Impl({this.message, this.code, this.status = false});
+
+  factory _$GenericResponse2Impl.fromJson(Map<String, dynamic> json) =>
+      _$$GenericResponse2ImplFromJson(json);
+
+  @override
+  final String? message;
+  @override
+  final int? code;
+  @override
+  @JsonKey()
+  final bool status;
+
+  @override
+  String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
+    return 'GenericResponse2(message: $message, code: $code, status: $status)';
+  }
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties
+      ..add(DiagnosticsProperty('type', 'GenericResponse2'))
+      ..add(DiagnosticsProperty('message', message))
+      ..add(DiagnosticsProperty('code', code))
+      ..add(DiagnosticsProperty('status', status));
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is _$GenericResponse2Impl &&
+            (identical(other.message, message) || other.message == message) &&
+            (identical(other.code, code) || other.code == code) &&
+            (identical(other.status, status) || other.status == status));
+  }
+
+  @JsonKey(ignore: true)
+  @override
+  int get hashCode => Object.hash(runtimeType, message, code, status);
+
+  @JsonKey(ignore: true)
+  @override
+  @pragma('vm:prefer-inline')
+  _$$GenericResponse2ImplCopyWith<_$GenericResponse2Impl> get copyWith =>
+      __$$GenericResponse2ImplCopyWithImpl<_$GenericResponse2Impl>(
+          this, _$identity);
+
+  @override
+  Map<String, dynamic> toJson() {
+    return _$$GenericResponse2ImplToJson(
+      this,
+    );
+  }
+}
+
+abstract class _GenericResponse2 implements GenericResponse2 {
+  const factory _GenericResponse2(
+      {final String? message,
+      final int? code,
+      final bool status}) = _$GenericResponse2Impl;
+
+  factory _GenericResponse2.fromJson(Map<String, dynamic> json) =
+      _$GenericResponse2Impl.fromJson;
+
+  @override
+  String? get message;
+  @override
+  int? get code;
+  @override
+  bool get status;
+  @override
+  @JsonKey(ignore: true)
+  _$$GenericResponse2ImplCopyWith<_$GenericResponse2Impl> get copyWith =>
+      throw _privateConstructorUsedError;
+}

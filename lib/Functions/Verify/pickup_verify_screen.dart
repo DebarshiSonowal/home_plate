@@ -7,11 +7,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_otp_text_field/flutter_otp_text_field.dart';
 import 'package:home_plate/Constants/constants.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:provider/provider.dart';
+
 // import 'package:pluto_grid/pluto_grid.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 
+import '../../Api/api_provider.dart';
 import '../../CommonWidget/help_button.dart';
+import '../../Constants/common_function.dart';
 import '../../Navigation/Navigate.dart';
+import '../../Repository/repository.dart';
 import '../../Router/routes.dart';
 import '../OTP/Widgets/custom_checklist.dart';
 
@@ -26,6 +31,7 @@ class PickUpVerifyScreen extends StatefulWidget {
 
 class _PickUpVerifyScreenState extends State<PickUpVerifyScreen> {
   XFile? selectedPhoto;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -70,7 +76,6 @@ class _PickUpVerifyScreenState extends State<PickUpVerifyScreen> {
           crossAxisAlignment: CrossAxisAlignment.center,
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-
             Card(
               elevation: 4,
               shape: RoundedRectangleBorder(
@@ -96,26 +101,26 @@ class _PickUpVerifyScreenState extends State<PickUpVerifyScreen> {
                 child: Row(
                   children: [
                     AutoSizeText.rich(
-                      TextSpan(
-                          children: [
-                            TextSpan(
-                              text:"Order Delivered To: ",
-                              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                color: Constants.fourthColor,
-                                // fontWeight: FontWeight.bold,
-                                fontSize: 14.5.sp,
-                              ),
-                            ),
-                            TextSpan(
-                              text:Faker().person.name(),
-                              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                color: Constants.fourthColor,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 14.5.sp,
-                              ),
-                            ),
-                          ]
-                      ),
+                      TextSpan(children: [
+                        TextSpan(
+                          text: "Order Delivered To: ",
+                          style:
+                              Theme.of(context).textTheme.bodySmall?.copyWith(
+                                    color: Constants.fourthColor,
+                                    // fontWeight: FontWeight.bold,
+                                    fontSize: 14.5.sp,
+                                  ),
+                        ),
+                        TextSpan(
+                          text: Faker().person.name(),
+                          style:
+                              Theme.of(context).textTheme.bodySmall?.copyWith(
+                                    color: Constants.fourthColor,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 14.5.sp,
+                                  ),
+                        ),
+                      ]),
                     ),
                   ],
                 ),
@@ -128,20 +133,20 @@ class _PickUpVerifyScreenState extends State<PickUpVerifyScreen> {
               TextSpan(
                 children: [
                   TextSpan(
-                    text:"Token Number:\n",
+                    text: "Token Number:\n",
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: Constants.fourthColor,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 20.sp,
-                    ),
+                          color: Constants.fourthColor,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 20.sp,
+                        ),
                   ),
                   TextSpan(
-                    text:"T${Random().nextInt(100000)}",
+                    text: "T${Random().nextInt(100000)}",
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: Constants.secondaryColor,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 23.sp,
-                    ),
+                          color: Constants.secondaryColor,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 23.sp,
+                        ),
                   ),
                 ],
               ),
@@ -164,17 +169,15 @@ class _PickUpVerifyScreenState extends State<PickUpVerifyScreen> {
                   ),
                 ),
                 onPressed: () {
-                  Navigation.instance
-                      .navigateAndRemoveUntil(Routes.tasksScreen, args: 0);
-
+                  verifyPickUp(context, (widget.id ?? 0).toString());
                 },
                 child: Text(
                   "Verified Pickup",
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: Constants.secondaryColor,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 17.sp,
-                  ),
+                        color: Constants.secondaryColor,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 17.sp,
+                      ),
                 ),
               ),
             ),
@@ -182,6 +185,28 @@ class _PickUpVerifyScreenState extends State<PickUpVerifyScreen> {
         ),
       ),
     );
+  }
+
+  void verifyPickUp(BuildContext context, String order_id) async {
+    CommonFunction().showLoadingDialog(context);
+    final data = Provider.of<Repository>(context, listen: false).profile;
+    final response = await ApiProvider.instance.acceptedOrderStatus(
+        (data?.id ?? 0).toString(),
+        order_id,
+        '2',
+        '',
+        (selectedPhoto?.path ?? ""));
+    if (response.status ?? false) {
+      CommonFunction().hideLoadingDialog(context);
+      CommonFunction().showSuccessSnackBar(
+          context, response.message, "Order PickedUp Successfully");
+      Navigation.instance
+          .navigateAndRemoveUntil(Routes.tasksScreen, args: (widget.id ?? 0));
+    } else {
+      CommonFunction().hideLoadingDialog(context);
+      CommonFunction()
+          .showErrorSnackBar(context, response.message, "Something went wrong");
+    }
   }
 
   // List<PlutoColumn> columns = [

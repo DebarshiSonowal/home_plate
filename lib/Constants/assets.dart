@@ -10,6 +10,7 @@ class Assets{
   //animation
   static const verified = "assets/animation/verified.json";
   static const verifying = "assets/animation/verifying.json";
+  static const noOrders = "assets/animation/no_orders.json";
 
 
 }

@@ -142,8 +142,7 @@ class _AddressInfoDialogState extends State<AddressInfoDialog> {
                 TextSpan(
                   children: [
                     TextSpan(
-                      text: ""
-                          "${_distance} (${_duration})",
+                      text: "${widget.item.distance} (${widget.item.duration})",
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
                             color: Constants.secondaryColor,
                             fontSize: 14.sp,
@@ -199,8 +198,10 @@ class _AddressInfoDialogState extends State<AddressInfoDialog> {
         Map<String, dynamic> data = jsonDecode(response.data);
 
         // Correctly access distance and duration as strings:
-        String distanceText = data['rows'][0]['elements'][0]['distance']['text'];
-        String durationText = data['rows'][0]['elements'][0]['duration']['text'];
+        String distanceText =
+            data['rows'][0]['elements'][0]['distance']['text'];
+        String durationText =
+            data['rows'][0]['elements'][0]['duration']['text'];
 
         setState(() {
           _distance = distanceText;

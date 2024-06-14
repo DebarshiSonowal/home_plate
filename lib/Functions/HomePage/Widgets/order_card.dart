@@ -5,8 +5,12 @@ import 'package:faker/faker.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:home_plate/Api/api_provider.dart';
+import 'package:home_plate/Constants/common_function.dart';
 import 'package:home_plate/Functions/HomePage/Widgets/alert_body.dart';
+import 'package:home_plate/Repository/repository.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 
 import '../../../Constants/constants.dart';
@@ -18,11 +22,11 @@ import 'address_info_dialog.dart';
 class OrderCard extends StatelessWidget {
   const OrderCard({
     super.key,
-    required this.item,
+    required this.item, required this.fetchOrders,
   });
 
   final OrderModel item;
-
+  final Function fetchOrders;
   @override
   Widget build(BuildContext context) {
     return Card(
@@ -284,7 +288,9 @@ class OrderCard extends StatelessWidget {
                           ), // <-- Radius
                         ),
                       ),
-                      onPressed: () {},
+                      onPressed: () {
+                        rejectOrder(context, item.id);
+                      },
                       child: Text(
                         "Reject",
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
@@ -312,8 +318,7 @@ class OrderCard extends StatelessWidget {
                         ),
                       ),
                       onPressed: () {
-                        Navigation.instance
-                            .navigate(Routes.tasksScreen, args: 0);
+                        acceptOrder(context, item.id);
                       },
                       child: Text(
                         "Accept",
@@ -375,6 +380,43 @@ class OrderCard extends StatelessWidget {
           );
         });
   }
+
+  void acceptOrder(BuildContext context, order_id) async {
+    CommonFunction().showLoadingDialog(context);
+    final data = Provider.of<Repository>(context, listen: false).profile;
+    final response = await ApiProvider.instance
+        .orderUpdateStatus((data?.id ?? 0).toString(), order_id, '1');
+    if (response.status ?? false) {
+      CommonFunction().hideLoadingDialog(context);
+      CommonFunction().showSuccessSnackBar(
+          context, response.message, 'Successfully Accepted the order');
+      fetchOrders();
+      Navigation.instance.navigate(Routes.tasksScreen, args: order_id);
+    } else {
+      CommonFunction().hideLoadingDialog(context);
+      CommonFunction()
+          .showErrorSnackBar(context, response.message, 'Something went wrong');
+    }
+  }
+
+  void rejectOrder(BuildContext context, order_id) async {
+    CommonFunction().showLoadingDialog(context);
+    final data = Provider.of<Repository>(context, listen: false).profile;
+    final response = await ApiProvider.instance
+        .orderUpdateStatus((data?.id ?? 0).toString(), order_id, '2');
+    if (response.status ?? false) {
+      CommonFunction().hideLoadingDialog(context);
+      CommonFunction().showSuccessSnackBar(
+          context, response.message, 'Successfully Rejected the order');
+      fetchOrders();
+      Navigation.instance.navigate(Routes.tasksScreen, args: order_id);
+    } else {
+      CommonFunction().hideLoadingDialog(context);
+      CommonFunction()
+          .showErrorSnackBar(context, response.message, 'Something went wrong');
+    }
+  }
+
 }
 
 class AcceptedOrderCard extends StatelessWidget {

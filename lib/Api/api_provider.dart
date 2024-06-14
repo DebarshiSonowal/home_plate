@@ -23,9 +23,11 @@ class ApiProvider {
 
   final String baseUrl = "http://18.222.65.250";
 
-  // final String baseUrl2 = "http://develop.guwahatiplus.com/api/v1";
+  final String baseUrl2 = "https://driver.dev.h24x7.in";
+
   // final String homeUrl = "https://www.guwahatiplus.com/api/v1";
   final String path = "api/driver";
+  final String path2 = "api/app/drivers";
 
   Dio? dio;
 
@@ -556,11 +558,9 @@ class ApiProvider {
     }
   }
 
-
-  Future<GenericResponse> VerifyDriverEmail(
-    // String driver_id,
-    // String email,
-  ) async {
+  Future<GenericResponse> VerifyDriverEmail(// String driver_id,
+      // String email,
+      ) async {
     BaseOptions option = BaseOptions(
         connectTimeout: const Duration(seconds: 8),
         receiveTimeout: const Duration(seconds: 8),
@@ -642,8 +642,7 @@ class ApiProvider {
     }
   }
 
-  Future<GenericResponse> sendDriverProfileForReview(
-  ) async {
+  Future<GenericResponse> sendDriverProfileForReview() async {
     BaseOptions option = BaseOptions(
         connectTimeout: const Duration(seconds: 8),
         receiveTimeout: const Duration(seconds: 8),
@@ -813,6 +812,227 @@ class ApiProvider {
       debugPrint(
           "updateLatLongAndGetListOfOrdersForDriver error response: ${e.response} ${e.requestOptions.headers}");
       return OrderResponse.withError(
+        e.response?.data['message'] ?? "Something went wrong",
+      );
+    }
+  }
+
+  // Techsavvy APIs
+  Future<GenericResponse2> acceptedOrderStatus(
+    String driver_id,
+    String order_id,
+    String order_status,
+    String order_otp,
+    String order_photo,
+  ) async {
+    BaseOptions option = BaseOptions(
+        connectTimeout: const Duration(seconds: 8),
+        receiveTimeout: const Duration(seconds: 8),
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'Authorization': 'Bearer ${Storage.instance.token}'
+          // 'APP-KEY': ConstanceData.app_key
+        });
+    var url = "$baseUrl2/$path2/accepted-order-status";
+    dio = Dio(option);
+    Map<String, dynamic> jsonData = {
+      "driver_id": driver_id,
+      "order_id": order_id,
+      "order_status": order_status,
+    };
+    if(order_otp.isNotEmpty){
+      jsonData.addAll({
+        "order_otp": order_otp,
+      });
+    }
+    if (order_photo.isNotEmpty) {
+      jsonData.addAll({
+        "order_photo": await MultipartFile.fromFile(
+          order_photo,
+          filename: order_photo.split("/").last.split(".").first,
+        ),
+      });
+    }
+    FormData data = FormData.fromMap(jsonData);
+    debugPrint(url.toString());
+    debugPrint(data.fields.toString());
+    try {
+      Response? response = await dio?.post(url, data: data);
+      debugPrint("accepted-order-status response: ${response?.data}");
+      if (response?.statusCode == 200 || response?.statusCode == 201) {
+        return GenericResponse2.fromJson(response?.data);
+      } else {
+        debugPrint("accepted-order-status error: ${response?.data}");
+        return GenericResponse2.error(
+          response?.data['message'] ?? "Something went wrong",
+        );
+      }
+    } on DioError catch (e) {
+      debugPrint("accepted-order-status error response: ${e.response}");
+      return GenericResponse2.error(
+        e.response?.data['message'] ?? "Something went wrong",
+      );
+    }
+  }
+
+  Future<GenericResponse> getAcceptedOrder(
+    String driver_id,
+  ) async {
+    BaseOptions option = BaseOptions(
+        connectTimeout: const Duration(seconds: 8),
+        receiveTimeout: const Duration(seconds: 8),
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'Authorization': 'Bearer ${Storage.instance.token}'
+          // 'APP-KEY': ConstanceData.app_key
+        });
+    var url = "$baseUrl/$path/get-accepted-order/$driver_id";
+    dio = Dio(option);
+    var data = {
+      "driver_id": driver_id,
+    };
+    debugPrint(url.toString());
+    debugPrint(jsonEncode(data));
+    try {
+      Response? response = await dio?.get(url, data: jsonEncode(data));
+      debugPrint("get-accepted-order response: ${response?.data}");
+      if (response?.statusCode == 200 || response?.statusCode == 201) {
+        return GenericResponse.fromJson(response?.data);
+      } else {
+        debugPrint("get-accepted-order error: ${response?.data}");
+        return GenericResponse.error(
+          response?.data['message'] ??
+              "Something went wrong with the registration",
+        );
+      }
+    } on DioError catch (e) {
+      debugPrint("get-accepted-order error response: ${e.response}");
+      return GenericResponse.error(
+        e.response?.data['message'] ??
+            "Something went wrong with the registration",
+      );
+    }
+  }
+  Future<GenericResponse2> orderUpdateStatus(
+      String driver_id,
+      String order_id,
+      String is_accept,
+      ) async {
+    BaseOptions option = BaseOptions(
+        connectTimeout: const Duration(seconds: 8),
+        receiveTimeout: const Duration(seconds: 8),
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'Authorization': 'Bearer ${Storage.instance.token}'
+          // 'APP-KEY': ConstanceData.app_key
+        });
+    var url = "$baseUrl2/$path2/order-update-status";
+    dio = Dio(option);
+    Map<String, dynamic> jsonData = {
+      "driver_id": driver_id,
+      "order_id": order_id,
+      "is_accept": is_accept,
+    };
+    FormData data = FormData.fromMap(jsonData);
+    debugPrint(url.toString());
+    debugPrint(data.fields.toString());
+    try {
+      Response? response = await dio?.post(url, data: data);
+      debugPrint("order-update-status response: ${response?.data}");
+      if (response?.statusCode == 200 || response?.statusCode == 201) {
+        return GenericResponse2.fromJson(response?.data);
+      } else {
+        debugPrint("order-update-status error: ${response?.data}");
+        return GenericResponse2.error(
+          response?.data['message'] ?? "Something went wrong",
+        );
+      }
+    } on DioError catch (e) {
+      debugPrint("order-update-status error response: ${e.response}");
+      return GenericResponse2.error(
+        e.response?.data['message'] ?? "Something went wrong",
+      );
+    }
+  }
+
+  Future<GenericResponse2> changeDriverCurrentStatus(
+      String driver_id,
+      String is_active,
+      ) async {
+    BaseOptions option = BaseOptions(
+        connectTimeout: const Duration(seconds: 8),
+        receiveTimeout: const Duration(seconds: 8),
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'Authorization': 'Bearer ${Storage.instance.token}'
+          // 'APP-KEY': ConstanceData.app_key
+        });
+    var url = "$baseUrl2/$path2/change-driver-current-status";
+    dio = Dio(option);
+    Map<String, dynamic> jsonData = {
+      "driver_id": driver_id,
+      "is_active": is_active,
+    };
+    FormData data = FormData.fromMap(jsonData);
+    debugPrint(url.toString());
+    debugPrint(data.fields.toString());
+    try {
+      Response? response = await dio?.post(url, data: data);
+      debugPrint("change-driver-current-status response: ${response?.data}");
+      if (response?.statusCode == 200 || response?.statusCode == 201) {
+        return GenericResponse2.fromJson(response?.data);
+      } else {
+        debugPrint("change-driver-current-status error: ${response?.data}");
+        return GenericResponse2.error(
+          response?.data['message'] ?? "Something went wrong",
+        );
+      }
+    } on DioError catch (e) {
+      debugPrint("change-driver-current-status error response: ${e.response}");
+      return GenericResponse2.error(
+        e.response?.data['message'] ?? "Something went wrong",
+      );
+    }
+  }
+
+  Future<GenericResponse2> accountDeleteRequest(
+      String driver_id,
+      ) async {
+    BaseOptions option = BaseOptions(
+        connectTimeout: const Duration(seconds: 8),
+        receiveTimeout: const Duration(seconds: 8),
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'Authorization': 'Bearer ${Storage.instance.token}'
+          // 'APP-KEY': ConstanceData.app_key
+        });
+    var url = "$baseUrl2/$path2/account-delete-request";
+    dio = Dio(option);
+    Map<String, dynamic> jsonData = {
+      "driver_id": driver_id,
+    };
+    FormData data = FormData.fromMap(jsonData);
+    debugPrint(url.toString());
+    debugPrint(data.fields.toString());
+    try {
+      Response? response = await dio?.post(url, data: data);
+      debugPrint("change-driver-current-status response: ${response?.data}");
+      if (response?.statusCode == 200 || response?.statusCode == 201) {
+        return GenericResponse2.fromJson(response?.data);
+      } else {
+        debugPrint("change-driver-current-status error: ${response?.data}");
+        return GenericResponse2.error(
+          response?.data['message'] ?? "Something went wrong",
+        );
+      }
+    } on DioError catch (e) {
+      debugPrint("change-driver-current-status error response: ${e.response}");
+      return GenericResponse2.error(
         e.response?.data['message'] ?? "Something went wrong",
       );
     }

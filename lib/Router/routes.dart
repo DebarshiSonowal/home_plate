@@ -28,5 +28,6 @@ class Routes {
   static const profileVerifyEmailScreen = "/profile_verify_email";
   static const getOrderScreen = "/get_order";
   static const myEarningsScreen = "/my_earnings";
+  static const contactUsScreen = "/contact_us";
 // static const selectedLanguageScreen = "/selected_language";
 }
