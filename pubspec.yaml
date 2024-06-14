@@ -77,6 +77,7 @@ dependencies:
   syncfusion_flutter_pdfviewer: ^24.2.8
   popup_menu_plus: ^0.0.6
   flutter_spinkit: ^5.2.1
+  flutter_background_service: ^5.0.5
 
 #  freezed_annotation: ^2.4.1
 #  svg_icon: ^0.0.1
